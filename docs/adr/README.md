@@ -9,6 +9,7 @@ Short records of decisions a reviewer would ask "why?" about. Add new ones with 
 | [0100](0100-minimal-dependencies.md)    | Apple frameworks only, iOS 17 minimum                         | Accepted | iOS        |
 | [0101](0101-pharmacy-list-loading.md)   | Pharmacy list bundled with the app, live loading later        | Accepted | iOS        |
 | [0102](0102-apple-maps-link.md)         | Each result opens Apple Maps                                  | Accepted | iOS        |
+| [0103](0103-precise-location.md)        | Ask for a precise location once per launch                    | Accepted | iOS        |
 
 ## Numbering
 
