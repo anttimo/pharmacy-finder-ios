@@ -80,7 +80,8 @@ final class NearestPharmaciesModel {
     /// For an approximate fix, asks once per launch for a precise location and takes a new fix.
     /// Declining, or a failed precise fix, keeps the approximate one.
     private func preciseIfAllowed(_ fix: LocationFix) async -> LocationFix {
-        guard fix.isApproximate, !hasAskedForPreciseLocation else { return fix }
+        // A cancelled search mustn't use up the one ask: the newer search would then skip it.
+        guard fix.isApproximate, !hasAskedForPreciseLocation, !Task.isCancelled else { return fix }
         hasAskedForPreciseLocation = true
         guard await locationProvider.requestPreciseLocation(), !Task.isCancelled else { return fix }
         return (try? await locationProvider.currentLocation()) ?? fix

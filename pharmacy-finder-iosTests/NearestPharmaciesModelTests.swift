@@ -197,6 +197,20 @@ struct NearestPharmaciesModelTests {
         #expect(resultsAreApproximate == true)
     }
 
+    @Test func aCancelledSearchDoesNotUseUpThePreciseLocationAsk() async {
+        location.allowsPreciseLocation = true
+        let older = model.useMyLocation()
+        let newer = model.useMyLocation()
+        await location.answer(Self.fix(Self.elsewhere, approximate: true))  // the older request
+        await location.answer(Self.fix(Self.here, approximate: true))  // the newer one
+        await location.answer(Self.fix(Self.here))  // the newer one's precise fix
+        await older.value
+        await newer.value
+        #expect(location.preciseLocationRequests == 1)
+        #expect(resultIDs == ["a", "b", "c"])
+        #expect(resultsAreApproximate == false)
+    }
+
     @Test func doesNotAskForAPreciseLocationWhenItIsAlreadyPrecise() async {
         location.queuedAnswers = [Self.fix(Self.here)]
         await model.useMyLocation().value
