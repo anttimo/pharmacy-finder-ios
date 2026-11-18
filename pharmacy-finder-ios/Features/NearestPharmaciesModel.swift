@@ -24,12 +24,14 @@ final class NearestPharmaciesModel {
     static let resultCount = 3
 
     private(set) var state = State.idle
-    /// When the pharmacy list was generated, for the footer. Nil until the list has loaded.
+    /// When the pharmacy list was generated, for the footer. Nil until the list has loaded, so it
+    /// also tells whether the list is ready.
     private(set) var listGeneratedAt: Date?
 
     private let listLoader: any PharmacyListLoader
     private let locationProvider: any LocationProvider
-    @ObservationIgnored private var list: PharmacyList?
+    /// The one load of the list, shared by the launch and every search. Once finished, awaiting
+    /// it returns the list at once.
     @ObservationIgnored private var listTask: Task<PharmacyList, Never>?
     @ObservationIgnored private var search: Task<Void, Never>?
     /// Precise location is asked for at most once per launch (ADR 0103). The model lives as long
@@ -69,7 +71,7 @@ final class NearestPharmaciesModel {
         }
         guard !Task.isCancelled else { return }
 
-        if list == nil { state = .loading }
+        if listGeneratedAt == nil { state = .loading }
         let pharmacies = await pharmacyList().pharmacies
         guard !Task.isCancelled else { return }
         state = .results(
@@ -88,17 +90,9 @@ final class NearestPharmaciesModel {
     }
 
     private func pharmacyList() async -> PharmacyList {
-        if let list { return list }
-        let task: Task<PharmacyList, Never>
-        if let listTask {
-            task = listTask
-        } else {
-            let loader = listLoader
-            task = Task { await loader.load() }
-            listTask = task
-        }
+        let task = listTask ?? Task { [listLoader] in await listLoader.load() }
+        listTask = task
         let loaded = await task.value
-        list = loaded
         listGeneratedAt = loaded.generatedAt
         return loaded
     }
