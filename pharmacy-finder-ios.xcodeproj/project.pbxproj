@@ -29,9 +29,22 @@
 		FC5BBCD030AE067800FC9412 /* pharmacy-finder-iosUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "pharmacy-finder-iosUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		FC5BBCF030AE067900FC9412 /* Exceptions for "pharmacy-finder-ios" folder in "pharmacy-finder-ios" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = FC5BBCB830AE067700FC9412 /* pharmacy-finder-ios */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		FC5BBCBB30AE067700FC9412 /* pharmacy-finder-ios */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				FC5BBCF030AE067900FC9412 /* Exceptions for "pharmacy-finder-ios" folder in "pharmacy-finder-ios" target */,
+			);
 			path = "pharmacy-finder-ios";
 			sourceTree = "<group>";
 		};
@@ -192,6 +205,7 @@
 			knownRegions = (
 				en,
 				Base,
+				fi,
 			);
 			mainGroup = FC5BBCB030AE067600FC9412;
 			minimizedProjectReferenceProxies = 1;
@@ -400,6 +414,7 @@
 				DEVELOPMENT_TEAM = QQ8HH4D9ZU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "pharmacy-finder-ios/Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -432,6 +447,7 @@
 				DEVELOPMENT_TEAM = QQ8HH4D9ZU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "pharmacy-finder-ios/Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

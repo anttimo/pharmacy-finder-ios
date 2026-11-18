@@ -1,0 +1,42 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "NearestPharmacies" : {
+      "comment" : "Asked once per launch when the user has turned off Precise Location: why the app wants a precise location this time.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A precise location shows the pharmacies that are really nearest to you."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tarkan sijainnin avulla näet, mitkä apteekit ovat oikeasti lähimpänä."
+          }
+        }
+      }
+    },
+    "NSLocationWhenInUseUsageDescription" : {
+      "comment" : "The system location permission prompt, shown when the user first taps \"Use my location\".",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your location is used to find the nearest pharmacies."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sijaintiasi käytetään lähimpien apteekkien etsimiseen."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
