@@ -38,19 +38,19 @@
       }
     },
     "denied.body" : {
-      "comment" : "Under \"Location access is turned off.\": how to allow location, also when Location Services are off for the whole device. TODO(i18n-review): the Finnish names of the iOS Settings pages.",
+      "comment" : "Under \"Location access is turned off.\": how to allow location, also when Location Services are off for the whole device. It doesn't name the path in Settings, since that can change between iOS versions.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "To use your location, allow location access for this app in Settings, then tap “Use my location” again. If Location Services are off for the whole phone, turn them on in Settings › Privacy & Security › Location Services."
+            "value" : "To use your location, allow location access for this app in Settings, then tap “Use my location” again. If Location Services are off for the whole phone, turn them on."
           }
         },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Jos haluat käyttää sijaintiasi, salli sijainnin käyttö tälle sovellukselle Asetuksista ja paina sitten uudelleen ”Käytä sijaintiani”. Jos sijaintipalvelut ovat pois päältä koko puhelimesta, laita ne päälle kohdasta Asetukset › Tietosuoja ja turvallisuus › Sijaintipalvelut."
+            "value" : "Jos haluat käyttää sijaintiasi, salli sijainnin käyttö tälle sovellukselle asetuksista ja paina sitten uudelleen ”Käytä sijaintiani”. Jos sijaintipalvelut ovat pois päältä koko puhelimesta, laita ne päälle."
           }
         }
       }
@@ -182,7 +182,7 @@
       }
     },
     "results.approximate" : {
-      "comment" : "Above the results when the user shared only an approximate location and didn't allow a precise one. TODO(i18n-review): \"Tarkka sijainti\" is the name of the iOS setting.",
+      "comment" : "Above the results when the user shared only an approximate location and didn't allow a precise one.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -194,7 +194,7 @@
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sijaintisi on likimääräinen, joten nämä eivät välttämättä ole lähimmät apteekit. Saat tarkat tulokset, kun laitat Tarkan sijainnin päälle tälle sovellukselle Asetuksista."
+            "value" : "Sijaintisi on likimääräinen, joten nämä eivät välttämättä ole lähimmät apteekit. Saat tarkemmat tulokset, kun laitat tarkan sijainnin päälle tälle sovellukselle asetuksista."
           }
         }
       }
@@ -224,13 +224,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Check opening hours with the pharmacy before you go."
+            "value" : "Check opening hours with the pharmacy."
           }
         },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tarkista aukioloajat apteekista ennen kuin lähdet."
+            "value" : "Tarkista aukioloajat apteekista."
           }
         }
       }
