@@ -1,6 +1,6 @@
 # 103. Ask for a precise location once per launch
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-18
 - Applies to: iOS app
 
