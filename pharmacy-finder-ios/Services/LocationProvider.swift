@@ -31,10 +31,12 @@ final class LiveLocationProvider: NSObject, LocationProvider {
     static let precisePurposeKey = "NearestPharmacies"
     /// How long to wait for a fix, as on the web (`timeout: 10_000`).
     static let timeout = Duration.seconds(10)
-    /// A fix this recent and accurate is reused, like the web's `maximumAge: 60_000`. The accuracy
-    /// check skips approximate fixes (several kilometres), so a precise one is fetched after the
-    /// user allows it.
-    private static let maximumAge: TimeInterval = 60
+    /// A fix this recent and accurate is reused, like the web's `maximumAge`. Short, because a
+    /// car at 100 km/h moves about 280 m in 10 s, and pharmacies in a city can be closer than that.
+    /// While the app has only approximate access, an approximate fix is reused too: a new one
+    /// would be no better. After the user allows precise access, the accuracy check skips the
+    /// approximate fix, so a precise one is fetched.
+    private static let maximumAge: TimeInterval = 10
     private static let maximumReusedAccuracy: CLLocationAccuracy = 500
 
     private let manager = CLLocationManager()
@@ -97,6 +99,7 @@ final class LiveLocationProvider: NSObject, LocationProvider {
             -recent.timestamp.timeIntervalSinceNow <= Self.maximumAge,
             recent.horizontalAccuracy >= 0,
             recent.horizontalAccuracy <= Self.maximumReusedAccuracy
+                || manager.accuracyAuthorization == .reducedAccuracy
         {
             return recent
         }
