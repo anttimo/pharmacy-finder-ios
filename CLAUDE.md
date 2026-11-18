@@ -54,4 +54,5 @@ Architecture decisions live in `docs/adr/` (index: [docs/adr/README.md](docs/adr
 - Keep changes small and focused, with one concern per commit. Work on a branch, never directly on `main`.
 - Test behaviour, not implementation. Unit tests drive the model through fake services. UI tests find elements by accessibility label, never by position, and use a fixed location instead of real permission prompts.
 - Swift 6 concurrency errors are fixed properly (actor isolation, `Sendable` types), never silenced with `@unchecked Sendable` or `nonisolated(unsafe)` without a comment explaining why it's safe.
+- Comments say why, not what: a reason, a constraint, a decision, or a link to its ADR. Skip comments that restate the code. When behaviour changes, update its comment in the same commit, since a stale comment misleads more than a missing one.
 - If a requirement is unclear or two rules conflict, ask instead of guessing.
