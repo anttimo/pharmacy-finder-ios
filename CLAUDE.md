@@ -7,6 +7,7 @@ Finds the pharmacies nearest to the user, or to a place they search for, in Finl
 ## Stack
 
 - SwiftUI + Observation, Swift 6 language mode, iOS 17.0 minimum ([ADR 0100](docs/adr/0100-minimal-dependencies.md)). The target defaults to `@MainActor` isolation (`SWIFT_DEFAULT_ACTOR_ISOLATION`).
+- Requires Xcode 26 (Swift 6.2) or later: the code uses `@concurrent` and `nonisolated` types, which older compilers reject.
 - Swift Testing for unit tests, XCUITest for smoke tests. `swift-format` (ships with Xcode, config in `.swift-format`).
 - The Xcode project uses synchronized folders: a file added under `pharmacy-finder-ios/` joins the app target automatically. Don't hand-edit `project.pbxproj` unless a build setting changes.
 
@@ -41,7 +42,7 @@ Before saying a task is done, run lint, the build and the unit tests, and report
 - **Healthcare tone.** Plain, calm and short. Never claim the list is complete or that a pharmacy is definitely open. Wherever results appear, show the "check opening hours with the pharmacy" note. The footer always shows:
   - the data source: "Pharmacy data source: Finnish Medicines Agency (Fimea) / THL CodeServer (Kanta Services)" / "Apteekkitietojen lähde: Lääkealan turvallisuus- ja kehittämiskeskus Fimea / THL Koodistopalvelu" ([ADR 0001](docs/adr/0001-pharmacy-data-source.md))
   - when the list in use was generated
-  - the Digitransit credit and the OpenStreetMap ODbL notice. The pharmacy coordinates were geocoded with Digitransit, so their licences apply on iOS too ([ADR 0003](docs/adr/0003-geocoding.md)).
+  - the Digitransit credit and the OpenStreetMap ODbL notice. The pharmacy coordinates were geocoded with Digitransit, so their licences apply on iOS too. Address search is Apple's, so the iOS credit is "Pharmacy locations: © Digitransit {year}" / "Apteekkien sijainnit: © Digitransit {year}", not the web's "… and address search" ([ADR 0003](docs/adr/0003-geocoding.md)).
 - **Each result** shows the name, address, straight-line distance, a tappable phone number and a "Show in Maps" button that opens Apple Maps ([ADR 0102](docs/adr/0102-apple-maps-link.md)). Three results, no distance limit.
 
 ## Decisions
