@@ -7,6 +7,7 @@ Finds the pharmacies nearest to the user, or to a place they search for, in Finl
 ## Stack
 
 - SwiftUI + Observation, Swift 6 language mode, iOS 17.0 minimum ([ADR 0100](docs/adr/0100-minimal-dependencies.md)). The target defaults to `@MainActor` isolation (`SWIFT_DEFAULT_ACTOR_ISOLATION`).
+- Requires Xcode 26 (Swift 6.2) or later: the code uses `@concurrent` and `nonisolated` types, which older compilers reject.
 - Swift Testing for unit tests, XCUITest for smoke tests. `swift-format` (ships with Xcode, config in `.swift-format`).
 - The Xcode project uses synchronized folders: a file added under `pharmacy-finder-ios/` joins the app target automatically. Don't hand-edit `project.pbxproj` unless a build setting changes.
 
