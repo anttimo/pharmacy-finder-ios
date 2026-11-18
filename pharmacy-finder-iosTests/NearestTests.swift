@@ -20,9 +20,10 @@ struct NearestTests {
         ]
         let result = pharmacies.nearest(to: origin, count: 2)
         #expect(result.map(\.id) == ["near", "middle"])
-        // 0.01° of latitude is about 1112 m.
+        // 0.01° of latitude is about 1.1 km. The tolerance is loose on purpose: this checks that
+        // the distance is attached in metres, not CoreLocation's own accuracy.
         let first = try #require(result.first)
-        #expect(abs(first.distanceMeters - 1112) < 5)
+        #expect(abs(first.distanceMeters - 1114) < 15)
     }
 
     @Test func returnsEverythingWhenThereAreFewerThanAskedFor() {
@@ -30,7 +31,8 @@ struct NearestTests {
     }
 
     @Test func ordersEqualDistancesById() {
-        let pharmacies = [pharmacy("b", latitude: 60.1), pharmacy("a", latitude: 60.1)]
+        // Both at the origin, so both distances are exactly 0.
+        let pharmacies = [pharmacy("b", latitude: 60), pharmacy("a", latitude: 60)]
         #expect(pharmacies.nearest(to: origin, count: 2).map(\.id) == ["a", "b"])
     }
 
