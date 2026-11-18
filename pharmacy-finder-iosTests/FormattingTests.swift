@@ -21,13 +21,25 @@ struct FormattingTests {
             Formatting.distance(meters: 1234, width: .wide, locale: english) == "1.2 kilometres")
     }
 
-    @Test func dropsTheDecimalFrom10KmUp() {
+    @Test func keepsTheDecimalFrom10KmUp() {
         #expect(
-            Formatting.distance(meters: 12_600, width: .abbreviated, locale: english) == "13 km")
+            Formatting.distance(meters: 10_500, width: .abbreviated, locale: finnish) == "10,5 km")
+        #expect(
+            Formatting.distance(meters: 12_640, width: .abbreviated, locale: english) == "12.6 km")
+    }
+
+    @Test func roundsHalvesUp() {
+        // 1.25 and 10.25 are exact in binary, so these are true ties.
+        #expect(
+            Formatting.distance(meters: 1_250, width: .abbreviated, locale: english) == "1.3 km")
+        #expect(
+            Formatting.distance(meters: 10_250, width: .abbreviated, locale: english) == "10.3 km")
     }
 
     @Test func dropsATrailingZeroDecimal() {
         #expect(Formatting.distance(meters: 2_010, width: .abbreviated, locale: english) == "2 km")
+        #expect(
+            Formatting.distance(meters: 13_020, width: .abbreviated, locale: english) == "13 km")
     }
 
     @Test func switchesToKilometresWhenMetresRoundUpTo1000() {

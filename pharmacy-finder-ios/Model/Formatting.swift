@@ -1,33 +1,30 @@
 import Foundation
 
 /// Text for distances, dates and phone links, in the user's locale. Pure functions, so the views
-/// stay free of formatting logic and the rules are unit tested. They match the web app's
-/// `src/lib/format.ts`.
+/// stay free of formatting logic and the rules are unit tested. They follow the web app's
+/// `src/lib/format.ts`, except that distances keep their decimal from 10 km up.
 nonisolated enum Formatting {
-    /// A distance: metres under 1 km, rounded to 10 m; kilometres above, with one decimal under
-    /// 10 km. `.abbreviated` gives the visible text ("350 m", "1,2 km"), `.wide` the text
-    /// VoiceOver reads ("350 metres", "1,2 kilometriä").
+    /// A distance: metres under 1 km, rounded to 10 m; kilometres above, with one decimal
+    /// ("10,5 km": half a kilometre matters even far away) unless it's zero ("13 km"). Halves
+    /// round up, as on the web, not to the even digit as `FormatStyle` does by default.
+    /// `.abbreviated` gives the visible text ("350 m", "1,2 km"), `.wide` the text VoiceOver
+    /// reads ("350 metres", "1,2 kilometriä").
     static func distance(
         meters: Double,
         width: Measurement<UnitLength>.FormatStyle.UnitWidth,
         locale: Locale = .autoupdatingCurrent
     ) -> String {
         let roundedMeters = (meters / 10).rounded() * 10
-        let measurement: Measurement<UnitLength>
-        let maxFractionDigits: Int
-        if roundedMeters < 1000 {
-            measurement = Measurement(value: roundedMeters, unit: .meters)
-            maxFractionDigits = 0
-        } else {
-            let kilometers = meters / 1000
-            measurement = Measurement(value: kilometers, unit: .kilometers)
-            maxFractionDigits = kilometers < 10 ? 1 : 0
-        }
+        let measurement =
+            roundedMeters < 1000
+            ? Measurement(value: roundedMeters, unit: UnitLength.meters)
+            : Measurement(value: meters / 1000, unit: UnitLength.kilometers)
         return measurement.formatted(
             .measurement(
                 width: width,
                 usage: .asProvided,
-                numberFormatStyle: .number.precision(.fractionLength(0...maxFractionDigits))
+                numberFormatStyle: .number.precision(.fractionLength(0...1))
+                    .rounded(rule: .toNearestOrAwayFromZero)
             )
             .locale(locale)
         )
