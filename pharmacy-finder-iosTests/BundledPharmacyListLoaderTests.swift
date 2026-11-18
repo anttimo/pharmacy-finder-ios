@@ -9,7 +9,7 @@ struct BundledPharmacyListLoaderTests {
     @Test func bundledListHasPharmaciesWithUniqueIdsNamesAddressesAndCoordinatesInFinland()
         async throws
     {
-        let list = try await BundledPharmacyListLoader().load()
+        let list = await BundledPharmacyListLoader().load()
         #expect(list.pharmacies.count > 500)
         #expect(Set(list.pharmacies.map(\.id)).count == list.pharmacies.count)
         for pharmacy in list.pharmacies {
@@ -17,12 +17,6 @@ struct BundledPharmacyListLoaderTests {
             #expect(!pharmacy.address.isEmpty, "\(pharmacy.id)")
             #expect((59.4...70.2).contains(pharmacy.coordinate.latitude), "\(pharmacy.id)")
             #expect((19...31.7).contains(pharmacy.coordinate.longitude), "\(pharmacy.id)")
-        }
-    }
-
-    @Test func failsWithoutAFile() async {
-        await #expect(throws: PharmacyListLoaderError.self) {
-            try await BundledPharmacyListLoader(url: nil).load()
         }
     }
 }
