@@ -1,0 +1,10 @@
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary
+
+# Copied from the web app's `npm run build:pharmacies` output (ADR 0001). The app ships it as
+# the fallback when the live list can't be loaded. GitHub collapses it in diffs and leaves it
+# out of the language stats.
+pharmacy-finder-ios/Resources/pharmacies.json linguist-generated=true
