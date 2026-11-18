@@ -148,6 +148,16 @@ struct OpenSettingsButton: View {
         .environment(\.locale, Locale(identifier: "fi"))
 }
 
+#Preview("Results, largest text") {
+    PreviewScreen(answer: .success(.preview))
+        .dynamicTypeSize(.accessibility5)
+}
+
+#Preview("Results, dark") {
+    PreviewScreen(answer: .success(.preview))
+        .preferredColorScheme(.dark)
+}
+
 #Preview("Approximate") {
     PreviewScreen(
         answer: .success(
