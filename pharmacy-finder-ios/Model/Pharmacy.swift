@@ -48,13 +48,13 @@ nonisolated extension Collection where Element == Pharmacy {
     /// The `count` pharmacies nearest to `origin` by straight-line distance, nearest first.
     /// Equal distances are ordered by id, so the result never depends on the list's order.
     func nearest(to origin: Coordinate, count: Int) -> [NearbyPharmacy] {
-        map { NearbyPharmacy(pharmacy: $0, distanceMeters: origin.distance(to: $0.coordinate)) }
+        let sorted =
+            map { NearbyPharmacy(pharmacy: $0, distanceMeters: origin.distance(to: $0.coordinate)) }
             .sorted { a, b in
                 a.distanceMeters != b.distanceMeters
                     ? a.distanceMeters < b.distanceMeters
                     : a.pharmacy.id < b.pharmacy.id
             }
-            .prefix(Swift.max(0, count))
-            .map { $0 }
+        return Array(sorted.prefix(Swift.max(0, count)))
     }
 }
