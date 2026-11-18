@@ -2,6 +2,10 @@ import CoreLocation
 
 /// The device's location, one fix at a time. Asks for when-in-use permission only when a fix is
 /// first requested, never earlier, and never for Always. The location stays on the device.
+///
+/// Main actor, unlike `PharmacyListLoader`: `CLLocationManager` calls its delegate on the thread
+/// that created it, and the screen model runs there too.
+@MainActor
 protocol LocationProvider {
     /// One location fix. Asks for permission first if the user hasn't answered yet.
     func currentLocation() async throws(LocationError) -> LocationFix
