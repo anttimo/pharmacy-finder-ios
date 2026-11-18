@@ -106,6 +106,8 @@ final class LiveLocationProvider: NSObject, LocationProvider {
                 manager.requestLocation()
                 timeoutTask = Task { [weak self] in
                     do { try await Task.sleep(for: Self.timeout) } catch { return }
+                    // Cancels the request, so a late answer can't finish the next one.
+                    self?.manager.stopUpdatingLocation()
                     self?.finishFix(.failure(.unavailable))
                 }
             }
