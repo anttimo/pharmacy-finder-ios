@@ -13,6 +13,10 @@ nonisolated struct Pharmacy: Identifiable, Hashable, Sendable {
     /// A branch pharmacy (sivuapteekki).
     let isBranch: Bool
     let coordinate: Coordinate
+
+    /// The address on one line, as Finnish addresses are written: "Mannerheimintie 1, 00100
+    /// Helsinki". The same in every language, so it isn't localized.
+    var postalAddress: String { "\(address), \(postcode) \(city)" }
 }
 
 nonisolated extension Pharmacy: Decodable {
