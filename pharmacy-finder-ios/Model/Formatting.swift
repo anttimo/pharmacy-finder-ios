@@ -3,6 +3,9 @@ import Foundation
 /// Text for distances, dates and phone links, in the user's locale. Pure functions, so the views
 /// stay free of formatting logic and the rules are unit tested. They follow the web app's
 /// `src/lib/format.ts`, except that distances keep their decimal from 10 km up.
+///
+/// The locale has no default on purpose: views pass SwiftUI's `@Environment(\.locale)`, so
+/// previews and the app's own language decide the format, not the device's region settings.
 nonisolated enum Formatting {
     /// A distance: metres under 1 km, rounded to 10 m; kilometres above, with one decimal
     /// ("10,5 km": half a kilometre matters even far away) unless it's zero ("13 km"). Halves
@@ -12,7 +15,7 @@ nonisolated enum Formatting {
     static func distance(
         meters: Double,
         width: Measurement<UnitLength>.FormatStyle.UnitWidth,
-        locale: Locale = .autoupdatingCurrent
+        locale: Locale
     ) -> String {
         let roundedMeters = (meters / 10).rounded() * 10
         let measurement =
@@ -32,7 +35,7 @@ nonisolated enum Formatting {
 
     /// The calendar date of the pharmacy list ("16 November 2026", "16. marraskuuta 2026"), in
     /// Finnish time so it doesn't depend on the device's time zone.
-    static func listDate(_ date: Date, locale: Locale = .autoupdatingCurrent) -> String {
+    static func listDate(_ date: Date, locale: Locale) -> String {
         var style = Date.FormatStyle(date: .long, time: .omitted).locale(locale)
         style.timeZone = helsinki
         return date.formatted(style)
