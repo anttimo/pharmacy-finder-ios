@@ -48,6 +48,8 @@ struct NearestPharmaciesView: View {
                 Image(systemName: "location.fill")
             }
             .frame(maxWidth: .infinity, minHeight: 44)
+            // White on the light dark-mode accent would be unreadable, so the text is black there.
+            .foregroundStyle(Color(.onAccent))
         }
         .buttonStyle(.borderedProminent)
     }
