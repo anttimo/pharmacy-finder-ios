@@ -8,7 +8,7 @@
 
 The app does one thing: find a location (device location or a place search) and show the nearest pharmacies as a sorted list. There is one screen, no account, no mutations and no state shared between screens.
 
-It needs location, place search, one static file download and a list UI. The iOS SDK covers all of that. Every package adds build time, upgrade work and code a reviewer has to trust. The web app follows the same rule ([ADR-0002 in the web repo](https://github.com/anttimo/pharmacy-finder-web/blob/main/docs/adr/0002-minimal-dependencies.md)).
+It needs location, place search, a bundled data file and a list UI. The iOS SDK covers all of that. Every package adds build time, upgrade work and code a reviewer has to trust. The web app follows the same rule ([ADR-0002 in the web repo](https://github.com/anttimo/pharmacy-finder-web/blob/main/docs/adr/0002-minimal-dependencies.md)).
 
 ## Decision
 
@@ -16,7 +16,7 @@ Use only Apple's frameworks: SwiftUI, Observation, CoreLocation, MapKit and Foun
 
 | Usually                               | Here instead                                                                 | Why it's enough                                                                 |
 | ------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| Alamofire / networking layer          | `URLSession` with `async`/`await`                                            | One GET of a static file ([ADR-0101](0101-pharmacy-list-loading.md))            |
+| Alamofire / networking layer          | None now; `URLSession` with `async`/`await` if live loading is added          | The pharmacy list ships with the app ([ADR-0101](0101-pharmacy-list-loading.md)) |
 | TCA / Redux-style store               | One `@Observable` model, owned by the view, with `Task` cancellation          | One screen, no shared state                                                     |
 | Navigation / coordinator library      | None                                                                         | Single screen                                                                   |
 | Geocoding SDK                         | `MKLocalSearchCompleter` + `MKLocalSearch` ([ADR-0003](0003-geocoding.md))   | Built in, free, no key                                                          |

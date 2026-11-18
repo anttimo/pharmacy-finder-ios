@@ -1,46 +1,51 @@
-# 101. Pharmacy list: the live file first, the bundled copy as fallback
+# 101. Pharmacy list: bundled with the app, live loading later
 
-- Status: Proposed (waits for the web app to publish the list at a stable URL, see "Needs from the web app")
-- Date: 2026-11-18
+- Status: Accepted
+- Date: 2026-11-18 (rewritten in place; replaces the same-day "live file first" proposal)
 - Applies to: iOS app
 
 ## Context
 
 Both apps search the same file, built from the Fimea register by the web repo's `npm run build:pharmacies` ([ADR-0001](0001-pharmacy-data-source.md)). The web app picks up a rebuilt list with its next deploy. An iOS app that only bundles the file is only as fresh as its last App Store release, and users don't always update.
 
+How much that matters:
+
+- The list changes slowly: a few of about 800 pharmacies open, close or move in a month.
+- The web list is rebuilt by hand too (web ADR-0001, "Staleness and rerunning"). Whoever rebuilds it can copy the same file into this repo.
+- The live site has no stable URL for the list. Vite bundles `pharmacies.json` into a JavaScript chunk with a hashed name (for example `/assets/pharmacies-d2jXn_14.js`). Serving it at a fixed URL needs a change in the web repo, which we want to avoid for now.
+
 ## Decision
 
-On the first search after launch, the app downloads the list from the live web service. If that fails, it uses the newest list it already has. It never fails a search because the list didn't load.
+The app reads only the copy it bundles: `pharmacy-finder-ios/Resources/pharmacies.json`.
 
-1. **Live first.** `GET https://pharmacy-finder.pharmacyfinder.workers.dev/data/pharmacies.json`, with a 5 s timeout. The URL is one constant in the app. The download starts as soon as the user starts a search, in parallel with getting the location, so it rarely adds waiting time.
-2. **Check it before use.** It must decode into the same shape as the bundled file and list at least half as many pharmacies (`openTotal`) as the bundled copy. A broken or truncated publish is ignored.
-3. **Cache it.** A valid download is saved in the app's Caches directory and kept in memory for the rest of the session.
-4. **Fallback.** On a timeout, network error or failed check, use the newer of the cached download and the bundled `pharmacies.json` (by `generatedAt`). The bundled copy is always there, so "Use my location" works offline and on first launch without a network.
-5. **Show the age.** The footer shows `generatedAt` of the list in use ("Pharmacy data updated …"), as the web app does.
+- **Refresh:** copy the web repo's file unchanged (the command is in `CLAUDE.md`), in a commit of its own with its `generatedAt` and `openTotal` in the message. Do it whenever the web list is rebuilt, and before every release.
+- **Show the age:** the footer shows the list's `generatedAt` ("Pharmacy data updated …"), as the web app does.
+- **Keep the door open:** the list comes from a `PharmacyListLoader` protocol. The bundled loader is its only implementation for now. The model and views don't know where the list comes from.
 
-The request carries no location and no identifiers. The server sees the device's IP address, just as it does for every web visitor.
-
-The bundled copy is refreshed by copying the web repo's file before a release, in a commit of its own (see `CLAUDE.md`).
-
-### Needs from the web app
-
-Today the live site has no stable URL for the list. Vite bundles `pharmacies.json` into a hashed JavaScript chunk, and `/pharmacies.json` gets the SPA fallback (`index.html`). The web app must serve the file as a static asset at `/data/pharmacies.json`. The simplest way is to move it to `public/data/pharmacies.json` and have the web app `fetch()` it too, instead of `import()`, so only one copy exists. That changes the web repo's ADR-0001 ("Loading") and is decided there. This ADR stays Proposed until that's live.
+Loading a bundled file can't fail in practice, so the list has no error state. A file that doesn't decode is a build mistake: a unit test decodes the bundled file and checks its count.
 
 ## Consequences
 
 **Good**
 
-- A list rebuilt and deployed on the web reaches iOS users without an App Store release.
-- Always works: offline, on first launch and when the web service is down.
+- No network request for the list, and no change to the web app. Works offline and on first launch.
+- Simple: one file read and one decode, easy to test.
 
 **Bad, and how we handle it**
 
-- **One more async step.** It runs in parallel with locating, and its timeout is short. It has no error state of its own, because the fallback always exists.
-- **The two apps can show different lists for a while** (an old cached or bundled list on iOS). The footer date makes the age visible, and the UI already tells people to check with the pharmacy before going.
-- **The web URL becomes a contract.** The path `/data/pharmacies.json` and the JSON shape must not change without updating both apps. The size check guards against a bad publish, not a changed shape: a changed shape fails decoding, and the app falls back.
+- **Stale until the next release, and longer for users who don't update.** The footer date makes the age visible, and the UI already tells people to check with the pharmacy before going. If this becomes a real problem, do "Later" below.
+
+## Later: live loading
+
+If freshness matters more later, without changing the web app's code:
+
+1. **Web repo:** a small Vite plugin in `vite.config.ts` emits a copy of `src/data/pharmacies.json` as `data/pharmacies.json` in the build. Cloudflare serves it as a static asset (no Worker code runs; `run_worker_first` covers only `/api/*`). The web app keeps its `import()`. That URL and the JSON shape then become a contract between the two apps.
+2. **iOS:** a second `PharmacyListLoader` that downloads `https://pharmacy-finder.pharmacyfinder.workers.dev/data/pharmacies.json` with a short timeout, rejects a file that doesn't decode or lists less than half the bundled count, caches a valid one, and otherwise falls back to the newer of the cache and the bundled copy.
+3. **Optional:** a scheduled job that rebuilds and deploys the list, as described in web ADR-0001 ("Later: refresh on the server"). With 1 and 2 in place, iOS users would get it without a release.
+
+That change gets its own ADR, superseding this one.
 
 ## Alternatives considered
 
-- Bundled file only: simplest, but the list is as old as the app version the user has installed.
-- Download on every launch: costs data and battery for a list that changes a few times a month.
+- Live file first, bundled as fallback (this ADR's first version): needs a stable URL on the web app first. Deferred to "Later".
 - Fetch the Fimea register directly from the app: the register has no coordinates, and geocoding on the device would need the Digitransit key in the app ([ADR-0001](0001-pharmacy-data-source.md)).
