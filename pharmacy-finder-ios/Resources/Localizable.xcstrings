@@ -1,0 +1,462 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "app.intro" : {
+      "comment" : "Intro under the title.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find the pharmacies closest to you by using your location."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löydä lähimmät apteekit käyttämällä sijaintiasi."
+          }
+        }
+      }
+    },
+    "app.title" : {
+      "comment" : "The screen's title.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find the nearest pharmacy"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löydä lähin apteekki"
+          }
+        }
+      }
+    },
+    "denied.body" : {
+      "comment" : "Under \"Location access is turned off.\": how to allow location, also when Location Services are off for the whole device. TODO(i18n-review): the Finnish names of the iOS Settings pages.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To use your location, allow location access for this app in Settings, then tap “Use my location” again. If Location Services are off for the whole phone, turn them on in Settings › Privacy & Security › Location Services."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jos haluat käyttää sijaintiasi, salli sijainnin käyttö tälle sovellukselle Asetuksista ja paina sitten uudelleen ”Käytä sijaintiani”. Jos sijaintipalvelut ovat pois päältä koko puhelimesta, laita ne päälle kohdasta Asetukset › Tietosuoja ja turvallisuus › Sijaintipalvelut."
+          }
+        }
+      }
+    },
+    "error.locationBody" : {
+      "comment" : "Under \"We couldn't get your location.\": what to check.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check that Location Services are on, then try again."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tarkista, että sijaintipalvelut ovat käytössä, ja yritä uudelleen."
+          }
+        }
+      }
+    },
+    "error.retry" : {
+      "comment" : "Button that tries to get the location again.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try again"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yritä uudelleen"
+          }
+        }
+      }
+    },
+    "footer.locations %@" : {
+      "comment" : "Footer: credit required by Digitransit's terms (CC BY), which geocoded the pharmacies. The placeholder is the current year. Address search is Apple's on iOS, so unlike the web it isn't credited here (ADR 0003).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pharmacy locations: © [Digitransit](https://digitransit.fi/) %@"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apteekkien sijainnit: © [Digitransit](https://digitransit.fi/) %@"
+          }
+        }
+      }
+    },
+    "footer.osm" : {
+      "comment" : "Footer: notice required by ODbL section 4.3, following its example text. Markdown links.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contains information from [OpenStreetMap](https://www.openstreetmap.org/copyright), which is made available here under the [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/1-0/)."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sisältää tietoja [OpenStreetMapista](https://www.openstreetmap.org/copyright), jonka tiedot ovat saatavilla [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/1-0/) -lisenssillä."
+          }
+        }
+      }
+    },
+    "footer.source" : {
+      "comment" : "Footer: where the pharmacy data comes from. Markdown link to the THL CodeServer.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pharmacy data source: Finnish Medicines Agency (Fimea) / [THL CodeServer (Kanta Services)](https://koodistopalvelu.kanta.fi/)"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apteekkitietojen lähde: Lääkealan turvallisuus- ja kehittämiskeskus Fimea / [THL Koodistopalvelu](https://koodistopalvelu.kanta.fi/)"
+          }
+        }
+      }
+    },
+    "footer.updated %@" : {
+      "comment" : "Footer: when the pharmacy list was generated. The placeholder is a date, such as \"16 November 2026\".",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pharmacy data updated %@."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apteekkitiedot päivitetty %@."
+          }
+        }
+      }
+    },
+    "locate.button" : {
+      "comment" : "The button that finds pharmacies near the user.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use my location"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Käytä sijaintiani"
+          }
+        }
+      }
+    },
+    "results.approximate" : {
+      "comment" : "Above the results when the user shared only an approximate location and didn't allow a precise one. TODO(i18n-review): \"Tarkka sijainti\" is the name of the iOS setting.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your location is approximate, so these may not be the nearest pharmacies. For exact results, turn on Precise Location for this app in Settings."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sijaintisi on likimääräinen, joten nämä eivät välttämättä ole lähimmät apteekit. Saat tarkat tulokset, kun laitat Tarkan sijainnin päälle tälle sovellukselle Asetuksista."
+          }
+        }
+      }
+    },
+    "results.call %@" : {
+      "comment" : "VoiceOver action on a pharmacy that calls it. The placeholder is its phone number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Call %@"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soita %@"
+          }
+        }
+      }
+    },
+    "results.checkHours" : {
+      "comment" : "Under the results heading. Opening hours aren't in the data.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check opening hours with the pharmacy before you go."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tarkista aukioloajat apteekista ennen kuin lähdet."
+          }
+        }
+      }
+    },
+    "results.distance %@" : {
+      "comment" : "A pharmacy's distance, such as \"1,2 km\", measured in a straight line.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ in a straight line"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ linnuntietä"
+          }
+        }
+      }
+    },
+    "results.distanceNote" : {
+      "comment" : "Under the results heading: how distances are measured.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Distances are measured in a straight line."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Etäisyydet on mitattu linnuntietä."
+          }
+        }
+      }
+    },
+    "results.heading" : {
+      "comment" : "Heading above the nearest pharmacies.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pharmacies near you"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lähellä olevat apteekit"
+          }
+        }
+      }
+    },
+    "results.map" : {
+      "comment" : "Button that opens the pharmacy in Apple Maps.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show in Maps"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Näytä kartalla"
+          }
+        }
+      }
+    },
+    "results.rowLabel %@ %@ %@" : {
+      "comment" : "What VoiceOver reads for one pharmacy: its name, the spelled-out distance and the address.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, %2$@ in a straight line, %3$@"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, %2$@ linnuntietä, %3$@"
+          }
+        }
+      }
+    },
+    "settings.open" : {
+      "comment" : "Button that opens this app's page in the Settings app.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Settings"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avaa Asetukset"
+          }
+        }
+      }
+    },
+    "status.denied" : {
+      "comment" : "Status when the app may not use the location, or Location Services are off.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Location access is turned off."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sijainnin käyttö on estetty."
+          }
+        }
+      }
+    },
+    "status.found %lld" : {
+      "comment" : "Status above the results. The placeholder is how many are shown.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Showing the nearest pharmacy."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Showing the %lld nearest pharmacies."
+                }
+              }
+            }
+          }
+        },
+        "fi" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Näytetään lähin apteekki."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Näytetään %lld lähintä apteekkia."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "status.loading" : {
+      "comment" : "Status after the location is known, while the pharmacy list loads.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Looking for nearby pharmacies…"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haetaan lähellä olevia apteekkeja…"
+          }
+        }
+      }
+    },
+    "status.locating" : {
+      "comment" : "Status while waiting for the device's location.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finding your location…"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haetaan sijaintiasi…"
+          }
+        }
+      }
+    },
+    "status.locationError" : {
+      "comment" : "Status when the device's location couldn't be found.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We couldn't get your location."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sijaintiasi ei saatu haettua."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
