@@ -48,7 +48,7 @@ struct ResultsSection: View {
     }
 }
 
-/// One pharmacy. VoiceOver reads it as one element, with calling and Maps as its actions, so the
+/// One pharmacy. VoiceOver reads it as one element, with Maps and calling as its actions, so the
 /// list isn't three elements per pharmacy.
 private struct ResultRow: View {
     let nearby: NearbyPharmacy
@@ -84,6 +84,11 @@ private struct ResultRow: View {
             )
         )
         .accessibilityActions {
+            Button {
+                AppleMaps.open(pharmacy)
+            } label: {
+                Text("results.map", comment: mapComment)
+            }
             if let phone = pharmacy.phone, let phoneURL {
                 Button {
                     openURL(phoneURL)
@@ -91,15 +96,22 @@ private struct ResultRow: View {
                     Text("results.call \(phone)", comment: callComment)
                 }
             }
-            Button {
-                AppleMaps.open(pharmacy)
-            } label: {
-                Text("results.map", comment: mapComment)
-            }
         }
     }
 
+    /// Maps first: most people go to the pharmacy, and fewer call it.
     @ViewBuilder private var buttons: some View {
+        Button {
+            AppleMaps.open(pharmacy)
+        } label: {
+            Label {
+                Text("results.map", comment: mapComment)
+            } icon: {
+                Image(systemName: "map")
+            }
+            .frame(minHeight: 44)
+        }
+        .buttonStyle(.bordered)
         if let phone = pharmacy.phone {
             if let phoneURL {
                 // iOS asks before it calls, so a stray tap doesn't start a call.
@@ -118,17 +130,6 @@ private struct ResultRow: View {
                 Text(phone)
             }
         }
-        Button {
-            AppleMaps.open(pharmacy)
-        } label: {
-            Label {
-                Text("results.map", comment: mapComment)
-            } icon: {
-                Image(systemName: "map")
-            }
-            .frame(minHeight: 44)
-        }
-        .buttonStyle(.bordered)
     }
 
     private func distance(_ width: Measurement<UnitLength>.FormatStyle.UnitWidth) -> String {
