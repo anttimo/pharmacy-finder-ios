@@ -6,12 +6,15 @@ struct ResultsSection: View {
     let pharmacies: [NearbyPharmacy]
     /// The user shared only an approximate location (ADR 0103), so the order may be wrong.
     let isApproximate: Bool
+    /// The screen moves VoiceOver focus to the heading when new results appear.
+    var focus: AccessibilityFocusState<NearestPharmaciesView.Focus?>.Binding
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("results.heading", comment: "Heading above the nearest pharmacies.")
                 .font(.title2.bold())
                 .accessibilityAddTraits(.isHeader)
+                .accessibilityFocused(focus, equals: .resultsHeading)
             Text(
                 "results.checkHours",
                 comment: "Under the results heading. Opening hours aren't in the data.")

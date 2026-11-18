@@ -5,6 +5,14 @@ import SwiftUI
 struct NearestPharmaciesView: View {
     let model: NearestPharmaciesModel
 
+    /// Where VoiceOver focus is moved to, as on the web.
+    enum Focus: Hashable {
+        case locateButton
+        case resultsHeading
+    }
+
+    @AccessibilityFocusState private var focus: Focus?
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
@@ -17,9 +25,10 @@ struct NearestPharmaciesView: View {
                     Text("app.intro", comment: "Intro under the title.")
                     locateButton
                 }
-                StatusSection(state: model.state, retry: { model.useMyLocation() })
+                StatusSection(state: model.state, retry: retry)
                 if case .results(let pharmacies, let isApproximate) = model.state {
-                    ResultsSection(pharmacies: pharmacies, isApproximate: isApproximate)
+                    ResultsSection(
+                        pharmacies: pharmacies, isApproximate: isApproximate, focus: $focus)
                 }
                 Divider()
                 FooterView(listGeneratedAt: model.listGeneratedAt)
@@ -32,9 +41,22 @@ struct NearestPharmaciesView: View {
         // start and the first search doesn't wait for it.
         .task { await model.loadList() }
         .onChange(of: model.state) { _, state in
-            guard let text = state.statusText else { return }
-            AccessibilityNotification.Announcement(String(localized: text)).post()
+            if case .results = state {
+                // New results are hard to miss: VoiceOver moves to their heading and reads it.
+                // The status line isn't announced too, as the two would talk over each other;
+                // it's just above the heading.
+                focus = .resultsHeading
+            } else if let text = state.statusText {
+                AccessibilityNotification.Announcement(String(localized: text)).post()
+            }
         }
+    }
+
+    /// "Try again" disappears once the search restarts, so VoiceOver focus moves to where the
+    /// search started, as on the web.
+    private func retry() {
+        model.useMyLocation()
+        focus = .locateButton
     }
 
     // Stays tappable during a search: tapping again starts over, as on the web.
@@ -52,6 +74,7 @@ struct NearestPharmaciesView: View {
             .foregroundStyle(Color(.onAccent))
         }
         .buttonStyle(.borderedProminent)
+        .accessibilityFocused($focus, equals: .locateButton)
     }
 }
 
