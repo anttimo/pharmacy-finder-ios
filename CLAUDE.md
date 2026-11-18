@@ -41,7 +41,7 @@ Before saying a task is done, run lint, the build and the unit tests, and report
 - **Healthcare tone.** Plain, calm and short. Never claim the list is complete or that a pharmacy is definitely open. Wherever results appear, show the "check opening hours with the pharmacy" note. The footer always shows:
   - the data source: "Pharmacy data source: Finnish Medicines Agency (Fimea) / THL CodeServer (Kanta Services)" / "Apteekkitietojen lähde: Lääkealan turvallisuus- ja kehittämiskeskus Fimea / THL Koodistopalvelu" ([ADR 0001](docs/adr/0001-pharmacy-data-source.md))
   - when the list in use was generated
-  - the Digitransit credit and the OpenStreetMap ODbL notice. The pharmacy coordinates were geocoded with Digitransit, so their licences apply on iOS too ([ADR 0003](docs/adr/0003-geocoding.md)).
+  - the Digitransit credit and the OpenStreetMap ODbL notice. The pharmacy coordinates were geocoded with Digitransit, so their licences apply on iOS too. Address search is Apple's, so the iOS credit is "Pharmacy locations: © Digitransit {year}" / "Apteekkien sijainnit: © Digitransit {year}", not the web's "… and address search" ([ADR 0003](docs/adr/0003-geocoding.md)).
 - **Each result** shows the name, address, straight-line distance, a tappable phone number and a "Show in Maps" button that opens Apple Maps ([ADR 0102](docs/adr/0102-apple-maps-link.md)). Three results, no distance limit.
 
 ## Decisions
