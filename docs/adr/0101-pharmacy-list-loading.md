@@ -22,7 +22,7 @@ The app reads only the copy it bundles: `pharmacy-finder-ios/Resources/pharmacie
 - **Show the age:** the footer shows the list's `generatedAt` ("Pharmacy data updated …"), as the web app does.
 - **Keep the door open:** the list comes from a `PharmacyListLoader` protocol. The bundled loader is its only implementation for now. The model and views don't know where the list comes from.
 
-Loading a bundled file can't fail in practice, so the list has no error state. A file that doesn't decode is a build mistake: a unit test decodes the bundled file and checks its count.
+Loading a bundled file can't fail in practice, so the list has no error state and `load()` doesn't throw. A missing file, or one that doesn't decode, is a build mistake, like a missing image: the loader stops the app with `fatalError` and a clear message. iOS checks the app's signature, so the file can't change after install, and a unit test decodes the bundled file and checks its count, so a bad copy fails the tests before it ships. A live loader would keep the same contract by falling back to the bundled copy.
 
 ## Consequences
 
