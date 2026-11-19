@@ -40,7 +40,7 @@ final class NearestPharmaciesModel {
 
     /// The search field's text. Changing it updates the suggestions.
     var searchText = "" {
-        didSet { if searchText != oldValue { suggest() } }
+        didSet { suggest() }
     }
     /// Places matching `searchText`. The previous ones stay while new ones load, so the list
     /// doesn't flicker as the user types.
@@ -54,6 +54,9 @@ final class NearestPharmaciesModel {
     @ObservationIgnored private var listTask: Task<PharmacyList, Never>?
     @ObservationIgnored private var search: Task<Void, Never>?
     @ObservationIgnored private var suggestionSearch: Task<Void, Never>?
+    /// The query the current suggestions are for, so text that trims to the same query, such as
+    /// an added space, doesn't ask again.
+    @ObservationIgnored private var suggestedQuery = ""
     /// The name of the place last chosen. While the field shows it, there's nothing to suggest.
     @ObservationIgnored private var chosenPlaceName: String?
     /// Precise location is asked for at most once per launch (ADR 0103). The model lives as long
@@ -128,8 +131,10 @@ final class NearestPharmaciesModel {
     }
 
     private func suggest() {
-        suggestionSearch?.cancel()
         let text = query
+        guard text != suggestedQuery else { return }
+        suggestedQuery = text
+        suggestionSearch?.cancel()
         guard text.count >= Self.minimumQueryLength else {
             suggestionSearch = nil
             suggestions = []

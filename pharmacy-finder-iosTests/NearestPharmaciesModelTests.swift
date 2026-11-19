@@ -243,6 +243,15 @@ struct NearestPharmaciesModelTests {
         #expect(places.suggestionRequests == ["ka"])
     }
 
+    @Test func textThatTrimsToTheSameQueryDoesNotAskAgain() async {
+        model.searchText = "ka"
+        await waitUntil { !model.suggestions.isEmpty }
+        model.searchText = "ka "
+        model.searchText = "kam"
+        await waitUntil { places.suggestionRequests.count == 2 }
+        #expect(places.suggestionRequests == ["ka", "kam"])
+    }
+
     @Test func emptyingTheFieldRemovesTheSuggestions() async {
         model.searchText = "ka"
         await waitUntil { !model.suggestions.isEmpty }
