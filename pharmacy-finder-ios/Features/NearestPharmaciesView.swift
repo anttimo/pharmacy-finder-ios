@@ -44,20 +44,25 @@ struct NearestPharmaciesView: View {
             if case .results = state {
                 Task { await showResults() }
             } else if let text = state.statusText {
-                AccessibilityNotification.Announcement(String(localized: text)).post()
+                announce(text)
             }
         }
     }
 
     /// VoiceOver moves to the new results' heading, then announces the status. The heading is
     /// added in the same update that sets the state, and SwiftUI ignores focus aimed at an
-    /// element that isn't on screen yet, so the move waits for it. The announcement has low
-    /// priority so it's queued after the heading instead of the two cutting each other off.
+    /// element that isn't on screen yet, so the move waits for it.
     private func showResults() async {
         try? await Task.sleep(for: .milliseconds(500))
         // A new search may have started meanwhile.
         guard case .results = model.state, let text = model.state.statusText else { return }
         focus = .resultsHeading
+        announce(text)
+    }
+
+    /// Low priority queues the status after what VoiceOver is reading, such as the element focus
+    /// just moved to, instead of the two cutting each other off.
+    private func announce(_ text: LocalizedStringResource) {
         var announcement = AttributedString(localized: text)
         announcement.accessibilitySpeechAnnouncementPriority = .low
         AccessibilityNotification.Announcement(announcement).post()
