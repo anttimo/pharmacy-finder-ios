@@ -285,6 +285,14 @@ struct NearestPharmaciesModelTests {
         #expect(places.suggestionRequests == ["ka"])
     }
 
+    @Test func choosingASuggestionNamedAsTypedRemovesTheSuggestions() async {
+        places.suggestionsByText["Kamppi"] = [Self.kamppi]
+        model.searchText = "Kamppi"
+        await waitUntil { !model.suggestions.isEmpty }
+        await model.choose(Self.kamppi).value
+        #expect(model.suggestions.isEmpty)
+    }
+
     @Test func returnChoosesTheTopSuggestion() async {
         model.searchText = "ka"
         await waitUntil { !model.suggestions.isEmpty }
