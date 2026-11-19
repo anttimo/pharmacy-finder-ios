@@ -27,8 +27,8 @@ struct NearestPharmaciesView: View {
                     Text("app.intro", comment: "Intro under the title.")
                     locateButton
                     OrDivider()
-                    PlaceSearchField(model: model, isFocused: $searchFieldIsFocused)
-                        .accessibilityFocused($focus, equals: .searchField)
+                    PlaceSearchField(
+                        model: model, isFocused: $searchFieldIsFocused, accessibilityFocus: $focus)
                 }
                 StatusSection(state: model.state, retry: retry)
                 if case .results(let pharmacies, let origin) = model.state {
