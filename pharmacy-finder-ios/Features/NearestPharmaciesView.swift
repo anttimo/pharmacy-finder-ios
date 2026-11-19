@@ -57,8 +57,14 @@ struct NearestPharmaciesView: View {
                 announce(text)
             }
         }
-        .onChange(of: model.suggestionStatus) { _, status in
-            if let message = status.message { announce(message) }
+        // Only once the message has stayed for a moment: each letter typed clears it and the
+        // answer sets it again, and announcing every time talked over VoiceOver reading back the
+        // letters. A change of message cancels the wait.
+        .task(id: model.suggestionStatus) {
+            guard let message = model.suggestionStatus.message else { return }
+            try? await Task.sleep(for: .seconds(1))
+            guard !Task.isCancelled else { return }
+            announce(message)
         }
     }
 
