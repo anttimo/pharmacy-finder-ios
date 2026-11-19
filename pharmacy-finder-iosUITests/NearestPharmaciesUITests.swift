@@ -163,6 +163,14 @@ final class NearestPharmaciesUITests: XCTestCase {
             app.staticTexts["We couldn't search for the place."].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["Try again"].exists)
         try audit(app)
+
+        // Retries the place, not the location: that would empty the field and show results for
+        // the fixed location. This search always fails, so the error comes back.
+        app.buttons["Try again"].tap()
+        XCTAssertFalse(
+            app.staticTexts["Showing the 3 nearest pharmacies."].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["We couldn't search for the place."].exists)
+        XCTAssertEqual(field.value as? String, "kamp")
     }
 
     // MARK: - Helpers
