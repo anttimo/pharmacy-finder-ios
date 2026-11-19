@@ -242,15 +242,25 @@ final class NearestPharmaciesModel {
     }
 
     private func findTopSuggestionAndShowNearest(for text: String) async {
-        let found: [PlaceSuggestion]
+        let answer: Result<[PlaceSuggestion], PlaceSearchError>
         do throws(PlaceSearchError) {
-            found = try await placeSearch.suggestions(for: text)
+            answer = .success(try await placeSearch.suggestions(for: text))
         } catch {
-            guard !Task.isCancelled else { return }
+            answer = .failure(error)
+        }
+        guard !Task.isCancelled else { return }
+        // Typing meanwhile doesn't cancel this search, but the answer is about text no longer
+        // in the field: the live search even answers it with nothing once the newer text asks
+        // (see `PlaceSearch`). Saying "not found", or putting a place's name over what the user
+        // typed, would be wrong.
+        guard query == text else {
+            state = .idle
+            return
+        }
+        guard case .success(let found) = answer else {
             state = .searchError
             return
         }
-        guard !Task.isCancelled else { return }
         guard let top = found.first else {
             state = .noMatches
             return

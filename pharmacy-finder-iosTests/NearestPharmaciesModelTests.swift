@@ -410,6 +410,36 @@ struct NearestPharmaciesModelTests {
         #expect(model.searchText == "Kamppi")
     }
 
+    @Test func typingWhileReturnSearchWaitsDoesNotSayTheOldTextWasNotFound() async {
+        model.searchText = "zz"
+        await waitUntil { model.suggestionStatus == .noMatches }
+        places.waitsForRelease = true
+        let search = model.chooseTopSuggestion()
+        await waitUntil { places.suggestionRequests.count == 2 }  // Return asks again for "zz"
+        model.searchText = "ka"
+        // "zz" gets nothing, as the live search answers a superseded request.
+        await places.release()
+        await places.release()  // "ka"
+        await search.value
+        #expect(model.state == .idle)
+    }
+
+    @Test func typingWhileReturnSearchWaitsKeepsTheNewText() async {
+        model.searchText = "zz"
+        await waitUntil { model.suggestionStatus == .noMatches }
+        // Apple finds a place when Return asks again.
+        places.suggestionsByText["zz"] = [Self.kamppi]
+        places.waitsForRelease = true
+        let search = model.chooseTopSuggestion()
+        await waitUntil { places.suggestionRequests.count == 2 }
+        model.searchText = "ke"
+        await places.release()  // "zz"
+        await places.release()  // "ke"
+        await search.value
+        #expect(model.searchText == "ke")
+        #expect(model.state == .idle)
+    }
+
     @Test func typingAfterNoMatchesGoesBackToIdle() async {
         model.searchText = "zz"
         await waitUntil { model.suggestionStatus == .noMatches }
