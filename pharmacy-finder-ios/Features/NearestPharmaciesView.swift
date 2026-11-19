@@ -244,3 +244,9 @@ struct OpenSettingsButton: View {
         .dynamicTypeSize(.accessibility5)
         .preferredColorScheme(.dark)
 }
+
+#Preview("Field message: search error, largest text, dark") {
+    PreviewScreen(answer: nil, placeText: "Kamppi", pressesReturn: false, placeSearchFails: true)
+        .dynamicTypeSize(.accessibility5)
+        .preferredColorScheme(.dark)
+}

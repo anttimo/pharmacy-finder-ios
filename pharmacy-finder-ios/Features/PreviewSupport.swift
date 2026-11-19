@@ -8,11 +8,13 @@
         private let searches: Bool
         private let placeText: String?
 
+        private let pressesReturn: Bool
+
         /// With `placeText`, searches for that place as if typed and Return pressed, instead of
-        /// using the location.
+        /// using the location. Without Return, only the field's suggestions or message show.
         init(
             answer: Result<LocationFix, LocationError>?, searches: Bool = true,
-            placeText: String? = nil, placeSearchFails: Bool = false
+            placeText: String? = nil, pressesReturn: Bool = true, placeSearchFails: Bool = false
         ) {
             _model = State(
                 initialValue: NearestPharmaciesModel(
@@ -21,6 +23,7 @@
                     placeSearch: FixedPlaceSearch(fails: placeSearchFails)))
             self.searches = searches
             self.placeText = placeText
+            self.pressesReturn = pressesReturn
         }
 
         var body: some View {
@@ -29,7 +32,7 @@
                     guard searches else { return }
                     if let placeText {
                         model.searchText = placeText
-                        model.chooseTopSuggestion()
+                        if pressesReturn { model.chooseTopSuggestion() }
                     } else {
                         model.useMyLocation()
                     }
