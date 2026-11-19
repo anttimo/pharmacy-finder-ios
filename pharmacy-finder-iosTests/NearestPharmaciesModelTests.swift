@@ -11,7 +11,12 @@ struct NearestPharmaciesModelTests {
     private static let elsewhere = Coordinate(latitude: 60.62, longitude: 24.941)
     private static let generatedAt = Date(timeIntervalSince1970: 1_763_329_713)
 
+    private static let kamppi = PlaceSuggestion(title: "Kamppi", subtitle: "Helsinki")
+    private static let kampinkuja = PlaceSuggestion(title: "Kampinkuja 2", subtitle: "Helsinki")
+    private static let keskustori = PlaceSuggestion(title: "Keskustori", subtitle: "Tampere")
+
     private let location = FakeLocationProvider()
+    private let places = FakePlaceSearch()
     private let loader: FakePharmacyListLoader
     private let model: NearestPharmaciesModel
 
@@ -26,7 +31,13 @@ struct NearestPharmaciesModelTests {
             }
         loader = FakePharmacyListLoader(
             list: PharmacyList(generatedAt: Self.generatedAt, pharmacies: pharmacies))
-        model = NearestPharmaciesModel(listLoader: loader, locationProvider: location)
+        model = NearestPharmaciesModel(
+            listLoader: loader, locationProvider: location, placeSearch: places)
+        places.suggestionsByText = ["ka": [Self.kamppi, Self.kampinkuja], "ke": [Self.keskustori]]
+        places.places = [
+            Self.kamppi: Place(name: "Kamppi", coordinate: Self.elsewhere),
+            Self.keskustori: Place(name: "Keskustori", coordinate: Self.here),
+        ]
     }
 
     private static func fix(_ coordinate: Coordinate, approximate: Bool = false) -> Result<
@@ -43,8 +54,13 @@ struct NearestPharmaciesModelTests {
     }
 
     private var resultsAreApproximate: Bool? {
-        guard case .results(_, let isApproximate) = model.state else { return nil }
+        guard case .results(_, .myLocation(let isApproximate)) = model.state else { return nil }
         return isApproximate
+    }
+
+    private var resultsOrigin: NearestPharmaciesModel.Origin? {
+        guard case .results(_, let origin) = model.state else { return nil }
+        return origin
     }
 
     // MARK: - Starting
@@ -215,5 +231,102 @@ struct NearestPharmaciesModelTests {
         location.queuedAnswers = [Self.fix(Self.here)]
         await model.useMyLocation().value
         #expect(location.preciseLocationRequests == 0)
+    }
+
+    // MARK: - Place search
+
+    @Test func suggestsPlacesFromTwoLetters() async {
+        model.searchText = "k"
+        model.searchText = "ka"
+        await waitUntil { !model.suggestions.isEmpty }
+        #expect(model.suggestions == [Self.kamppi, Self.kampinkuja])
+        #expect(places.suggestionRequests == ["ka"])
+    }
+
+    @Test func textThatTrimsToTheSameQueryDoesNotAskAgain() async {
+        model.searchText = "ka"
+        await waitUntil { !model.suggestions.isEmpty }
+        model.searchText = "ka "
+        model.searchText = "kam"
+        await waitUntil { places.suggestionRequests.count == 2 }
+        #expect(places.suggestionRequests == ["ka", "kam"])
+    }
+
+    @Test func emptyingTheFieldRemovesTheSuggestions() async {
+        model.searchText = "ka"
+        await waitUntil { !model.suggestions.isEmpty }
+        model.searchText = ""
+        #expect(model.suggestions.isEmpty)
+    }
+
+    @Test func anOlderAnswerArrivingLateDoesNotReplaceNewerSuggestions() async {
+        places.waitsForRelease = true
+        model.searchText = "ka"
+        await waitUntil { places.suggestionRequests.count == 1 }
+        model.searchText = "ke"
+        await places.release()  // "ka"
+        await places.release()  // "ke"
+        await waitUntil { !model.suggestions.isEmpty }
+        #expect(model.suggestions == [Self.keskustori])
+    }
+
+    @Test func choosingAPlaceShowsTheNearestToIt() async {
+        await model.choose(Self.kamppi).value
+        #expect(resultIDs?.first == "far")
+        #expect(resultsOrigin == .place("Kamppi"))
+    }
+
+    @Test func choosingAPlacePutsItsNameInTheFieldWithoutSuggestingIt() async {
+        model.searchText = "ka"
+        await waitUntil { !model.suggestions.isEmpty }
+        await model.choose(Self.kamppi).value
+        #expect(model.searchText == "Kamppi")
+        #expect(model.suggestions.isEmpty)
+        #expect(places.suggestionRequests == ["ka"])
+    }
+
+    @Test func returnChoosesTheTopSuggestion() async {
+        model.searchText = "ka"
+        await waitUntil { !model.suggestions.isEmpty }
+        await model.chooseTopSuggestion().value
+        #expect(resultsOrigin == .place("Kamppi"))
+    }
+
+    @Test func returnBeforeTheSuggestionsArriveWaitsForThem() async {
+        places.waitsForRelease = true
+        model.searchText = "ka"
+        let submit = model.chooseTopSuggestion()
+        await places.release()
+        await submit.value
+        #expect(resultsOrigin == .place("Kamppi"))
+    }
+
+    @Test func returnWaitingForSuggestionsIsDroppedByUseMyLocation() async {
+        places.waitsForRelease = true
+        location.queuedAnswers = [Self.fix(Self.here)]
+        model.searchText = "ka"
+        let submit = model.chooseTopSuggestion()
+        await model.useMyLocation().value
+        await places.release()
+        await submit.value
+        #expect(resultsOrigin == .myLocation(isApproximate: false))
+    }
+
+    @Test func useMyLocationEmptiesTheField() async {
+        await model.choose(Self.kamppi).value
+        location.queuedAnswers = [Self.fix(Self.here)]
+        await model.useMyLocation().value
+        #expect(model.searchText == "")
+        #expect(resultsOrigin == .myLocation(isApproximate: false))
+    }
+
+    @Test func choosingAPlaceCancelsALocationSearch() async {
+        let older = model.useMyLocation()
+        let newer = model.choose(Self.keskustori)
+        await location.answer(Self.fix(Self.elsewhere))
+        await older.value
+        await newer.value
+        #expect(resultIDs == ["a", "b", "c"])
+        #expect(resultsOrigin == .place("Keskustori"))
     }
 }

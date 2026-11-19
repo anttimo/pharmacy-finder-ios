@@ -11,7 +11,8 @@
             _model = State(
                 initialValue: NearestPharmaciesModel(
                     listLoader: PreviewPharmacyListLoader(),
-                    locationProvider: PreviewLocationProvider(answer: answer)))
+                    locationProvider: PreviewLocationProvider(answer: answer),
+                    placeSearch: FixedPlaceSearch()))
             self.searches = searches
         }
 

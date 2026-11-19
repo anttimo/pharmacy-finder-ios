@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// The app's one screen: "Use my location", the state of the search, the nearest pharmacies and
-/// the footer. The layout follows the web app's `App.tsx`.
+/// The app's one screen: "Use my location", the place search, the state of the search, the
+/// nearest pharmacies and the footer. The layout follows the web app's `App.tsx`.
 struct NearestPharmaciesView: View {
     let model: NearestPharmaciesModel
 
@@ -12,6 +12,7 @@ struct NearestPharmaciesView: View {
     }
 
     @AccessibilityFocusState private var focus: Focus?
+    @FocusState private var searchFieldIsFocused: Bool
 
     var body: some View {
         ScrollView {
@@ -24,11 +25,12 @@ struct NearestPharmaciesView: View {
                         .accessibilityAddTraits(.isHeader)
                     Text("app.intro", comment: "Intro under the title.")
                     locateButton
+                    OrDivider()
+                    PlaceSearchField(model: model, isFocused: $searchFieldIsFocused)
                 }
                 StatusSection(state: model.state, retry: retry)
-                if case .results(let pharmacies, let isApproximate) = model.state {
-                    ResultsSection(
-                        pharmacies: pharmacies, isApproximate: isApproximate, focus: $focus)
+                if case .results(let pharmacies, let origin) = model.state {
+                    ResultsSection(pharmacies: pharmacies, origin: origin, focus: $focus)
                 }
                 Divider()
                 FooterView(listGeneratedAt: model.listGeneratedAt)
@@ -78,6 +80,7 @@ struct NearestPharmaciesView: View {
     // Stays tappable during a search: tapping again starts over, as on the web.
     private var locateButton: some View {
         Button {
+            searchFieldIsFocused = false
             model.useMyLocation()
         } label: {
             Label {

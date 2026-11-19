@@ -61,6 +61,34 @@ final class FakePharmacyListLoader: PharmacyListLoader {
     }
 }
 
+/// A place search the test controls. Text with no queued suggestions gets none. With
+/// `waitsForRelease`, a suggestion request waits until the test calls `release()`.
+@MainActor
+final class FakePlaceSearch: PlaceSearch {
+    var suggestionsByText: [String: [PlaceSuggestion]] = [:]
+    var places: [PlaceSuggestion: Place] = [:]
+    var waitsForRelease = false
+    private(set) var suggestionRequests: [String] = []
+    private var waiting: [CheckedContinuation<Void, Never>] = []
+
+    func suggestions(for text: String) async throws(PlaceSearchError) -> [PlaceSuggestion] {
+        suggestionRequests.append(text)
+        if waitsForRelease { await withCheckedContinuation { waiting.append($0) } }
+        return suggestionsByText[text] ?? []
+    }
+
+    func place(for suggestion: PlaceSuggestion) async throws(PlaceSearchError) -> Place {
+        guard let place = places[suggestion] else { throw .failed }
+        return place
+    }
+
+    /// Answers the oldest waiting suggestion request, after waiting for one to arrive.
+    func release() async {
+        await waitUntil { !waiting.isEmpty }
+        waiting.removeFirst().resume()
+    }
+}
+
 /// Lets other main-actor tasks run until `condition` holds, and fails the test if it never does.
 @MainActor
 func waitUntil(
