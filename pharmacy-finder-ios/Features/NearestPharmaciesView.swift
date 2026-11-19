@@ -55,6 +55,9 @@ struct NearestPharmaciesView: View {
                 announce(text)
             }
         }
+        .onChange(of: model.suggestionStatus) { _, status in
+            if let message = status.message { announce(message) }
+        }
     }
 
     /// VoiceOver moves to the new results' heading, then announces the status. The heading is

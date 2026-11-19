@@ -343,6 +343,24 @@
         }
       }
     },
+    "search.error" : {
+      "comment" : "Under the search field when Apple's place search couldn't be reached.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Address search isn't working right now. Try again, or use your location."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Osoitehaku ei toimi juuri nyt. Yritä uudelleen tai käytä sijaintiasi."
+          }
+        }
+      }
+    },
     "search.label" : {
       "comment" : "Label of the address or place search field.",
       "extractionState" : "manual",
@@ -357,6 +375,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Osoite tai paikka"
+          }
+        }
+      }
+    },
+    "search.noMatches" : {
+      "comment" : "Under the search field when no place in Finland matches the text.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No places found in Finland. Check the spelling, or try a street or town nearby."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paikkoja ei löytynyt Suomesta. Tarkista kirjoitusasu tai kokeile lähellä olevaa katua tai kuntaa."
           }
         }
       }

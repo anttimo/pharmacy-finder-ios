@@ -56,7 +56,8 @@ final class LivePlaceSearch: NSObject, PlaceSearch {
         .current, Locale(identifier: "en"), Locale(identifier: "fi"),
     ])
 
-    private let completer = MKLocalSearchCompleter()
+    /// Replaced after a failure: see `suggestions(for:)`.
+    private var completer = MKLocalSearchCompleter()
     /// The latest completions by suggestion id, because `MKLocalSearch` needs the completion
     /// object itself, which isn't `Sendable` and so can't travel inside a `PlaceSuggestion`.
     private var completions: [PlaceSuggestion.ID: MKLocalSearchCompletion] = [:]
@@ -64,6 +65,10 @@ final class LivePlaceSearch: NSObject, PlaceSearch {
 
     override init() {
         super.init()
+        configure(completer)
+    }
+
+    private func configure(_ completer: MKLocalSearchCompleter) {
         completer.delegate = self
         completer.region = Self.finland
         // Addresses and places, not "search for…" queries, which have no single location.
@@ -73,7 +78,8 @@ final class LivePlaceSearch: NSObject, PlaceSearch {
     func suggestions(for text: String) async throws(PlaceSearchError) -> [PlaceSuggestion] {
         finish(.success([]))
         // The completer only answers when the text changes, so asking again for the same text
-        // (after "Kam" → "Ka" → "Kam") would wait forever.
+        // (after "Kam" → "K" → "Kam") would wait forever. After a failure there are no results to
+        // reuse, so a new completer asks Apple again.
         if completer.queryFragment == text, !completer.isSearching {
             return suggestions(from: completer.results)
         }
@@ -152,6 +158,13 @@ extension LivePlaceSearch: @MainActor MKLocalSearchCompleterDelegate {
     func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: any Error) {
         // In a live test, text that matches nothing gave an empty list, but Apple's error for it
         // means the same.
-        finish(Self.isNotFound(error) ? .success([]) : .failure(.failed))
+        if Self.isNotFound(error) {
+            finish(.success([]))
+        } else {
+            completer.delegate = nil
+            self.completer = MKLocalSearchCompleter()
+            configure(self.completer)
+            finish(.failure(.failed))
+        }
     }
 }

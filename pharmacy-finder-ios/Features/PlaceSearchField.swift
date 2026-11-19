@@ -38,6 +38,19 @@ struct PlaceSearchField: View {
 
             // Only while the field has focus, so a late answer can't open the list elsewhere.
             if isFocused.wrappedValue, !model.suggestions.isEmpty { suggestionList }
+            // Also without focus: it's about the text, which stays in the field.
+            if let message = model.suggestionStatus.message {
+                if model.suggestionStatus == .failed {
+                    // The icon, so the error doesn't read as just another note.
+                    Label {
+                        Text(message)
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle").accessibilityHidden(true)
+                    }
+                } else {
+                    Text(message)
+                }
+            }
 
             Text("search.privacy", comment: privacyComment)
                 .font(.footnote)

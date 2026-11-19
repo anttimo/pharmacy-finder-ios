@@ -20,6 +20,15 @@ final class NearestPharmaciesModel {
         case locationError
     }
 
+    /// What the field says about its suggestions. Separate from `state`: it never touches the
+    /// results, which change only when a place is chosen (as on the web).
+    enum SuggestionStatus: Hashable {
+        case none
+        /// Apple found nothing for the text, or only places outside Finland.
+        case noMatches
+        case failed
+    }
+
     /// Where a search started from, for the results' heading and notes.
     enum Origin: Hashable {
         /// `isApproximate`: the user shared only an approximate location and didn't allow a
@@ -46,6 +55,8 @@ final class NearestPharmaciesModel {
     /// Places matching `searchText`. The previous ones stay while new ones load, so the list
     /// doesn't flicker as the user types.
     private(set) var suggestions: [PlaceSuggestion] = []
+    /// Reset as soon as the text changes, so a message never describes older text.
+    private(set) var suggestionStatus = SuggestionStatus.none
 
     private let listLoader: any PharmacyListLoader
     private let locationProvider: any LocationProvider
@@ -136,15 +147,24 @@ final class NearestPharmaciesModel {
         guard text != suggestedQuery else { return }
         suggestedQuery = text
         suggestionSearch?.cancel()
+        suggestionStatus = .none
         guard text.count >= Self.minimumQueryLength else {
             suggestionSearch = nil
             suggestions = []
             return
         }
         suggestionSearch = Task {
-            let found = (try? await placeSearch.suggestions(for: text)) ?? []
-            guard !Task.isCancelled else { return }
-            suggestions = found
+            do throws(PlaceSearchError) {
+                let found = try await placeSearch.suggestions(for: text)
+                guard !Task.isCancelled else { return }
+                suggestions = found
+                suggestionStatus = found.isEmpty ? .noMatches : .none
+            } catch {
+                guard !Task.isCancelled else { return }
+                // The old suggestions are for other text, and the message replaces them.
+                suggestions = []
+                suggestionStatus = .failed
+            }
         }
     }
 

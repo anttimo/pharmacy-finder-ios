@@ -270,6 +270,48 @@ struct NearestPharmaciesModelTests {
         #expect(model.suggestions == [Self.keskustori])
     }
 
+    @Test func textWithNoSuggestionsSaysSo() async {
+        model.searchText = "zz"
+        await waitUntil { model.suggestionStatus == .noMatches }
+        #expect(model.suggestions.isEmpty)
+    }
+
+    @Test func aFailedSuggestionSearchSaysSoWithoutTouchingTheResults() async {
+        location.queuedAnswers = [Self.fix(Self.here)]
+        await model.useMyLocation().value
+        let results = model.state
+        model.searchText = "ka"
+        await waitUntil { !model.suggestions.isEmpty }
+        places.failingTexts = ["kam"]
+        model.searchText = "kam"
+        await waitUntil { model.suggestionStatus == .failed }
+        #expect(model.suggestions.isEmpty)
+        #expect(model.state == results)
+    }
+
+    @Test func typingClearsTheSuggestionMessageAtOnce() async {
+        model.searchText = "zz"
+        await waitUntil { model.suggestionStatus == .noMatches }
+        places.waitsForRelease = true
+        model.searchText = "ka"
+        #expect(model.suggestionStatus == .none)
+        await places.release()
+        await waitUntil { !model.suggestions.isEmpty }
+        #expect(model.suggestionStatus == .none)
+    }
+
+    @Test func anOlderFailureArrivingLateDoesNotSayNewerTextFailed() async {
+        places.waitsForRelease = true
+        places.failingTexts = ["zz"]
+        model.searchText = "zz"
+        await waitUntil { places.suggestionRequests.count == 1 }
+        model.searchText = "ka"
+        await places.release()  // "zz"
+        await places.release()  // "ka"
+        await waitUntil { !model.suggestions.isEmpty }
+        #expect(model.suggestionStatus == .none)
+    }
+
     @Test func choosingAPlaceShowsTheNearestToIt() async {
         await model.choose(Self.kamppi).value
         #expect(resultIDs?.first == "far")

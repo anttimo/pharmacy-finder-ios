@@ -117,16 +117,42 @@ final class NearestPharmaciesUITests: XCTestCase {
         XCTAssertNotEqual(field.value as? String, "Keskustori")
     }
 
+    func testTextWithNoMatchesSaysSoUnderTheField() throws {
+        let app = launch(location: Self.helsinki)
+        let field = app.textFields["Address or place"]
+        field.tap()
+        field.typeText("zzz")
+
+        let message = app.staticTexts.matching(
+            NSPredicate(format: "label BEGINSWITH 'No places found in Finland.'")
+        ).firstMatch
+        XCTAssertTrue(message.waitForExistence(timeout: 5))
+        try audit(app)
+    }
+
+    func testAFailedPlaceSearchSaysSoUnderTheField() throws {
+        let app = launch(location: Self.helsinki, places: "failing")
+        let field = app.textFields["Address or place"]
+        field.tap()
+        field.typeText("kamp")
+
+        let message = app.staticTexts.matching(
+            NSPredicate(format: "label BEGINSWITH 'Address search isn'")
+        ).firstMatch
+        XCTAssertTrue(message.waitForExistence(timeout: 5))
+        try audit(app)
+    }
+
     // MARK: - Helpers
 
-    private func launch(location: String, language: String = "en", region: String = "en_FI")
-        -> XCUIApplication
-    {
+    private func launch(
+        location: String, places: String = "YES", language: String = "en", region: String = "en_FI"
+    ) -> XCUIApplication {
         continueAfterFailure = false
         let app = XCUIApplication()
         app.launchArguments = [
             "-fixedLocation", location,
-            "-fixedPlaces", "YES",
+            "-fixedPlaces", places,
             "-AppleLanguages", "(\(language))",
             "-AppleLocale", region,
         ]

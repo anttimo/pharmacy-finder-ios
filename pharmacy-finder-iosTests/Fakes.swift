@@ -61,12 +61,14 @@ final class FakePharmacyListLoader: PharmacyListLoader {
     }
 }
 
-/// A place search the test controls. Text with no queued suggestions gets none. With
-/// `waitsForRelease`, a suggestion request waits until the test calls `release()`.
+/// A place search the test controls. Text with no queued suggestions gets none, and text in
+/// `failingTexts` fails. With `waitsForRelease`, a suggestion request waits until the test calls
+/// `release()`.
 @MainActor
 final class FakePlaceSearch: PlaceSearch {
     var suggestionsByText: [String: [PlaceSuggestion]] = [:]
     var places: [PlaceSuggestion: Place] = [:]
+    var failingTexts: Set<String> = []
     var waitsForRelease = false
     private(set) var suggestionRequests: [String] = []
     private var waiting: [CheckedContinuation<Void, Never>] = []
@@ -74,6 +76,7 @@ final class FakePlaceSearch: PlaceSearch {
     func suggestions(for text: String) async throws(PlaceSearchError) -> [PlaceSuggestion] {
         suggestionRequests.append(text)
         if waitsForRelease { await withCheckedContinuation { waiting.append($0) } }
+        if failingTexts.contains(text) { throw .failed }
         return suggestionsByText[text] ?? []
     }
 

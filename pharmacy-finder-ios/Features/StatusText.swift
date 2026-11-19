@@ -41,3 +41,22 @@ extension NearestPharmaciesModel.State {
         }
     }
 }
+
+extension NearestPharmaciesModel.SuggestionStatus {
+    /// The message under the search field, which VoiceOver also announces. The web app's
+    /// `fieldMessage` for the same states (`PlaceSearch.tsx`), with "in Finland" added.
+    var message: LocalizedStringResource? {
+        switch self {
+        case .none:
+            nil
+        case .noMatches:
+            LocalizedStringResource(
+                "search.noMatches",
+                comment: "Under the search field when no place in Finland matches the text.")
+        case .failed:
+            LocalizedStringResource(
+                "search.error",
+                comment: "Under the search field when Apple's place search couldn't be reached.")
+        }
+    }
+}
