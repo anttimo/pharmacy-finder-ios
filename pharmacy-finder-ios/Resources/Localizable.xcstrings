@@ -200,7 +200,7 @@
       }
     },
     "results.call %@" : {
-      "comment" : "VoiceOver action on a pharmacy that calls it. The placeholder is its phone number.",
+      "comment" : "VoiceOver label of the button that calls a pharmacy. The placeholder is its phone number.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {

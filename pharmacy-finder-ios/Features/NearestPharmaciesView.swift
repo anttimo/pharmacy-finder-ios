@@ -5,6 +5,14 @@ import SwiftUI
 struct NearestPharmaciesView: View {
     let model: NearestPharmaciesModel
 
+    /// Where VoiceOver focus is moved to, as on the web.
+    enum Focus: Hashable {
+        case locateButton
+        case resultsHeading
+    }
+
+    @AccessibilityFocusState private var focus: Focus?
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
@@ -17,9 +25,10 @@ struct NearestPharmaciesView: View {
                     Text("app.intro", comment: "Intro under the title.")
                     locateButton
                 }
-                StatusSection(state: model.state, retry: { model.useMyLocation() })
+                StatusSection(state: model.state, retry: retry)
                 if case .results(let pharmacies, let isApproximate) = model.state {
-                    ResultsSection(pharmacies: pharmacies, isApproximate: isApproximate)
+                    ResultsSection(
+                        pharmacies: pharmacies, isApproximate: isApproximate, focus: $focus)
                 }
                 Divider()
                 FooterView(listGeneratedAt: model.listGeneratedAt)
@@ -32,9 +41,38 @@ struct NearestPharmaciesView: View {
         // start and the first search doesn't wait for it.
         .task { await model.loadList() }
         .onChange(of: model.state) { _, state in
-            guard let text = state.statusText else { return }
-            AccessibilityNotification.Announcement(String(localized: text)).post()
+            if case .results = state {
+                Task { await showResults() }
+            } else if let text = state.statusText {
+                announce(text)
+            }
         }
+    }
+
+    /// VoiceOver moves to the new results' heading, then announces the status. The heading is
+    /// added in the same update that sets the state, and SwiftUI ignores focus aimed at an
+    /// element that isn't on screen yet, so the move waits for it.
+    private func showResults() async {
+        try? await Task.sleep(for: .milliseconds(500))
+        // A new search may have started meanwhile.
+        guard case .results = model.state, let text = model.state.statusText else { return }
+        focus = .resultsHeading
+        announce(text)
+    }
+
+    /// Low priority queues the status after what VoiceOver is reading, such as the element focus
+    /// just moved to, instead of the two cutting each other off.
+    private func announce(_ text: LocalizedStringResource) {
+        var announcement = AttributedString(localized: text)
+        announcement.accessibilitySpeechAnnouncementPriority = .low
+        AccessibilityNotification.Announcement(announcement).post()
+    }
+
+    /// "Try again" disappears once the search restarts, so VoiceOver focus moves to where the
+    /// search started, as on the web.
+    private func retry() {
+        model.useMyLocation()
+        focus = .locateButton
     }
 
     // Stays tappable during a search: tapping again starts over, as on the web.
@@ -48,8 +86,11 @@ struct NearestPharmaciesView: View {
                 Image(systemName: "location.fill")
             }
             .frame(maxWidth: .infinity, minHeight: 44)
+            // White on the light dark-mode accent would be unreadable, so the text is black there.
+            .foregroundStyle(Color(.onAccent))
         }
         .buttonStyle(.borderedProminent)
+        .accessibilityFocused($focus, equals: .locateButton)
     }
 }
 
@@ -121,6 +162,16 @@ struct OpenSettingsButton: View {
 #Preview("Results, Finnish") {
     PreviewScreen(answer: .success(.preview))
         .environment(\.locale, Locale(identifier: "fi"))
+}
+
+#Preview("Results, largest text") {
+    PreviewScreen(answer: .success(.preview))
+        .dynamicTypeSize(.accessibility5)
+}
+
+#Preview("Results, dark") {
+    PreviewScreen(answer: .success(.preview))
+        .preferredColorScheme(.dark)
 }
 
 #Preview("Approximate") {

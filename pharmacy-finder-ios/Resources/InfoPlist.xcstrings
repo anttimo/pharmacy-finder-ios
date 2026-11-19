@@ -3,7 +3,6 @@
   "strings" : {
     "CFBundleDisplayName" : {
       "comment" : "The app's name under its icon on the home screen. Keep it to about 12 characters, or iOS cuts it off.",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21,7 +20,6 @@
     },
     "CFBundleName" : {
       "comment" : "The app's short name, used where iOS doesn't show the display name. The same as CFBundleDisplayName.",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringUnit" : {
