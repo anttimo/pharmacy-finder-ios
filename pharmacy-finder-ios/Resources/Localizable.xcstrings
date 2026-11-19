@@ -8,13 +8,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Find the pharmacies closest to you by using your location."
+            "value" : "Find the pharmacies closest to you by using your location or entering an address."
           }
         },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Löydä lähimmät apteekit käyttämällä sijaintiasi."
+            "value" : "Löydä lähimmät apteekit käyttämällä sijaintiasi tai antamalla osoite."
           }
         }
       }
@@ -339,6 +339,78 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@, %2$@ linnuntietä, %3$@"
+          }
+        }
+      }
+    },
+    "search.label" : {
+      "comment" : "Label of the address or place search field.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Address or place"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Osoite tai paikka"
+          }
+        }
+      }
+    },
+    "search.or" : {
+      "comment" : "Between the \"Use my location\" button and the search field.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "or"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tai"
+          }
+        }
+      }
+    },
+    "search.privacy" : {
+      "comment" : "Under the search field: what happens to the text the user types.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What you type is sent to Apple's place search."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kirjoittamasi teksti lähetetään Applen paikkahakuun."
+          }
+        }
+      }
+    },
+    "search.prompt" : {
+      "comment" : "Example text in the empty search field.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "e.g. Mannerheimintie 1, Helsinki"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "esim. Mannerheimintie 1, Helsinki"
           }
         }
       }
