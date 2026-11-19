@@ -15,6 +15,11 @@ final class NearestPharmaciesUITests: XCTestCase {
         XCTAssertTrue(
             app.staticTexts["Showing the 3 nearest pharmacies."].waitForExistence(timeout: 5))
         XCTAssertEqual(resultRows(in: app).count, 3)
+        // Ordinary buttons, not only VoiceOver actions, so Voice Control and Full Keyboard Access
+        // reach them too.
+        XCTAssertEqual(app.buttons.matching(identifier: "Show in Maps").count, 3)
+        XCTAssertTrue(
+            app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Call '")).firstMatch.exists)
         XCTAssertTrue(app.staticTexts["Check opening hours with the pharmacy."].exists)
         XCTAssertTrue(footerText(in: app, startingWith: "Pharmacy data source:").exists)
         try audit(app)
@@ -110,7 +115,7 @@ final class NearestPharmaciesUITests: XCTestCase {
         case .contrast:
             // iOS's grey secondary text is about 3.3:1, kept on purpose: it's the platform's
             // standard look, and Increase Contrast darkens it for those who need more.
-            return label.hasSuffix(" in a straight line")
+            return label.contains(" in a straight line")
                 || secondaryTextPrefixes.contains { label.hasPrefix($0) }
         case .dynamicType:
             // A result's buttons do scale (checked in screenshots at the largest size). The audit
@@ -122,7 +127,7 @@ final class NearestPharmaciesUITests: XCTestCase {
         }
     }
 
-    /// The result rows, each one element whose label ends with the distance and the address
+    /// The result rows' details, each one element whose label has the distance and the address
     /// ("Name, 70 metres in a straight line, Address").
     private func resultRows(in app: XCUIApplication) -> XCUIElementQuery {
         app.descendants(matching: .any).matching(

@@ -10,7 +10,7 @@ Go through the changed UI and report every item as **pass**, **fail (fixed)**, *
 ## Structure
 
 - The screen title and section headings use `.accessibilityAddTraits(.isHeader)` (or are `Section` headers), so VoiceOver's rotor can jump between them.
-- Each pharmacy result reads as one element (`.accessibilityElement(children: .combine)`) with its name, distance and address in that order. Its phone and Maps actions remain reachable, as separate buttons or as `.accessibilityAction`s.
+- Each pharmacy result's details (name, distance, address, in that order) read as one element. Its phone and Maps actions are separate buttons, not only `.accessibilityAction`s, so Voice Control, Full Keyboard Access and Switch Control reach them.
 - Reading order follows the visual order. Decorative images are `.accessibilityHidden(true)`.
 
 ## VoiceOver

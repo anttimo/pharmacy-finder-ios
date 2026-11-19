@@ -51,8 +51,9 @@ struct ResultsSection: View {
     }
 }
 
-/// One pharmacy. VoiceOver reads it as one element, with Maps and calling as its actions, so the
-/// list isn't three elements per pharmacy.
+/// One pharmacy. Its details are one VoiceOver element, so they're read together, and its
+/// actions are ordinary buttons, so Voice Control, Full Keyboard Access and Switch Control can
+/// reach them too.
 private struct ResultRow: View {
     let nearby: NearbyPharmacy
 
@@ -64,11 +65,7 @@ private struct ResultRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(pharmacy.name)
-                .font(.headline)
-            Text("results.distance \(distance(.abbreviated))", comment: distanceComment)
-                .foregroundStyle(.secondary)
-            Text(pharmacy.postalAddress)
+            details
             // Side by side when they fit, stacked at large text sizes.
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 12) { buttons }
@@ -78,6 +75,16 @@ private struct ResultRow: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
+    }
+
+    private var details: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(pharmacy.name)
+                .font(.headline)
+            Text("results.distance \(distance(.abbreviated))", comment: distanceComment)
+                .foregroundStyle(.secondary)
+            Text(pharmacy.postalAddress)
+        }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(
             Text(
@@ -86,20 +93,6 @@ private struct ResultRow: View {
                     "What VoiceOver reads for one pharmacy: its name, the spelled-out distance and the address."
             )
         )
-        .accessibilityActions {
-            Button {
-                AppleMaps.open(pharmacy)
-            } label: {
-                Text("results.map", comment: mapComment)
-            }
-            if let phone = pharmacy.phone, let phoneURL {
-                Button {
-                    openURL(phoneURL)
-                } label: {
-                    Text("results.call \(phone)", comment: callComment)
-                }
-            }
-        }
     }
 
     /// Maps first: most people go to the pharmacy, and fewer call it.
@@ -129,6 +122,9 @@ private struct ResultRow: View {
                     .frame(minHeight: 44)
                 }
                 .buttonStyle(.bordered)
+                // The number alone doesn't say what the button does. The label keeps the number,
+                // so Voice Control still matches what's on screen.
+                .accessibilityLabel(Text("results.call \(phone)", comment: callComment))
             } else {
                 Text(phone)
             }
@@ -142,6 +138,6 @@ private struct ResultRow: View {
     private let distanceComment: StaticString =
         "A pharmacy's distance, such as \"1,2 km\", measured in a straight line."
     private let callComment: StaticString =
-        "VoiceOver action on a pharmacy that calls it. The placeholder is its phone number."
+        "VoiceOver label of the button that calls a pharmacy. The placeholder is its phone number."
     private let mapComment: StaticString = "Button that opens the pharmacy in Apple Maps."
 }
