@@ -42,14 +42,25 @@ struct NearestPharmaciesView: View {
         .task { await model.loadList() }
         .onChange(of: model.state) { _, state in
             if case .results = state {
-                // New results are hard to miss: VoiceOver moves to their heading and reads it.
-                // The status line isn't announced too, as the two would talk over each other;
-                // it's just above the heading.
-                focus = .resultsHeading
+                Task { await showResults() }
             } else if let text = state.statusText {
                 AccessibilityNotification.Announcement(String(localized: text)).post()
             }
         }
+    }
+
+    /// VoiceOver moves to the new results' heading, then announces the status. The heading is
+    /// added in the same update that sets the state, and SwiftUI ignores focus aimed at an
+    /// element that isn't on screen yet, so the move waits for it. The announcement has low
+    /// priority so it's queued after the heading instead of the two cutting each other off.
+    private func showResults() async {
+        try? await Task.sleep(for: .milliseconds(500))
+        // A new search may have started meanwhile.
+        guard case .results = model.state, let text = model.state.statusText else { return }
+        focus = .resultsHeading
+        var announcement = AttributedString(localized: text)
+        announcement.accessibilitySpeechAnnouncementPriority = .low
+        AccessibilityNotification.Announcement(announcement).post()
     }
 
     /// "Try again" disappears once the search restarts, so VoiceOver focus moves to where the
