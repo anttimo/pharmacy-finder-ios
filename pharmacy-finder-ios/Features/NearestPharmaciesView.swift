@@ -38,6 +38,12 @@ struct NearestPharmaciesView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
         }
+        // With no navigation bar, nothing covers the status bar, so scrolled content showed
+        // through behind the clock. The bar material does what a navigation bar's would, and turns
+        // solid with Reduce Transparency.
+        .safeAreaInset(edge: .top, spacing: 0) {
+            Color.clear.frame(height: 0).background(.bar)
+        }
         .background(Color(.systemGroupedBackground))
         // Loaded at launch, not on the first tap, so the footer shows the list's date from the
         // start and the first search doesn't wait for it.
