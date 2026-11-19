@@ -16,8 +16,9 @@ Finds the pharmacies nearest to the user, or to a place they search for, in Finl
 Run from the repository root. `-derivedDataPath build` keeps build output in the gitignored `build/`.
 
 - Build: `xcodebuild -project pharmacy-finder-ios.xcodeproj -scheme pharmacy-finder-ios -destination 'platform=iOS Simulator,name=iPhone 17' -derivedDataPath build build`
-- Unit tests: the same, with `test -only-testing:pharmacy-finder-iosTests` instead of `build`
-- UI tests: the same, with `test -only-testing:pharmacy-finder-iosUITests`. Run them after changing a user flow.
+- Unit tests: the same, with `test -parallel-testing-enabled NO -only-testing:pharmacy-finder-iosTests` instead of `build`
+- UI tests: the same, with `test -parallel-testing-enabled NO -only-testing:pharmacy-finder-iosUITests`. Run them after changing a user flow.
+- Tests run serially because cloning simulators for parallel runs costs more than it saves on suites this small (measured: unit tests ~28 s vs ~50 s, UI tests 89 s vs 128 s). Keep Simulator open between runs: a run that starts while the simulator is still booting can fail to launch the app.
 - Lint: `xcrun swift-format lint --strict -r pharmacy-finder-ios pharmacy-finder-iosTests pharmacy-finder-iosUITests`
 - Format: `xcrun swift-format format -i -r pharmacy-finder-ios pharmacy-finder-iosTests pharmacy-finder-iosUITests`
 - Refresh the bundled pharmacy list: `cp ../../pharmacy-finder-web/src/data/pharmacies.json pharmacy-finder-ios/Resources/pharmacies.json`. Never edit the file by hand. Commit it on its own, with the `generatedAt` and `openTotal` in the message, so it doesn't bloat a feature PR. `.gitattributes` marks it as generated.
