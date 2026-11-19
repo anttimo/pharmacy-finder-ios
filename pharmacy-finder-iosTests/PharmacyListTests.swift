@@ -31,6 +31,7 @@ struct PharmacyListTests {
         #expect(first.phone == "(09) 849 2370")
         #expect(first.isBranch == false)
         #expect(first.coordinate == Coordinate(latitude: 60.19, longitude: 24.94))
+        #expect(first.postalAddress == "Fleminginkatu 1, 00530 Helsinki")
         #expect(list.pharmacies[1].phone == nil)
         #expect(list.pharmacies[1].isBranch)
     }
