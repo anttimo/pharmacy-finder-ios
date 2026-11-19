@@ -12,7 +12,8 @@ final class NearestPharmaciesModel {
     enum State: Hashable {
         case idle
         case locating
-        /// The location is known, and the pharmacy list is still loading.
+        /// The location is known, or a place was chosen and is being looked up. The pharmacy list
+        /// may still be loading.
         case loading
         case results([NearbyPharmacy], from: Origin)
         case denied

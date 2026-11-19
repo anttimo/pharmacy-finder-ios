@@ -494,7 +494,7 @@
       }
     },
     "status.loading" : {
-      "comment" : "Status after the location is known, while the pharmacy list loads.",
+      "comment" : "Status after the location is known or a place is chosen, while the nearest pharmacies are found.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {

@@ -14,7 +14,9 @@ extension NearestPharmaciesModel.State {
         case .loading:
             LocalizedStringResource(
                 "status.loading",
-                comment: "Status after the location is known, while the pharmacy list loads.")
+                comment:
+                    "Status after the location is known or a place is chosen, while the nearest pharmacies are found."
+            )
         case .results(let pharmacies, _):
             LocalizedStringResource(
                 "status.found \(pharmacies.count)",
