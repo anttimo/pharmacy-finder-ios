@@ -362,6 +362,78 @@ struct NearestPharmaciesModelTests {
         #expect(resultsOrigin == .myLocation(isApproximate: false))
     }
 
+    @Test func returnWithNoSuggestionsSaysNoPlaceWasFound() async {
+        model.searchText = "zz"
+        await waitUntil { model.suggestionStatus == .noMatches }
+        await model.chooseTopSuggestion().value
+        #expect(model.state == .noMatches)
+        // The status line says it, so the field doesn't repeat it.
+        #expect(model.suggestionStatus == .none)
+    }
+
+    @Test func returnAfterAFailedSuggestionSearchShowsASearchError() async {
+        places.failingTexts = ["ka"]
+        model.searchText = "ka"
+        await waitUntil { model.suggestionStatus == .failed }
+        await model.chooseTopSuggestion().value
+        #expect(model.state == .searchError)
+    }
+
+    @Test func choosingAPlaceOutsideFinlandSaysNoPlaceWasFound() async {
+        places.placeErrors = [Self.kamppi: .notFound]
+        await model.choose(Self.kamppi).value
+        #expect(model.state == .noMatches)
+    }
+
+    @Test func aFailedPlaceLookupShowsASearchError() async {
+        places.placeErrors = [Self.kamppi: .failed]
+        await model.choose(Self.kamppi).value
+        #expect(model.state == .searchError)
+    }
+
+    @Test func retryingAChosenPlaceShowsResults() async {
+        places.placeErrors = [Self.kamppi: .failed]
+        await model.choose(Self.kamppi).value
+        places.placeErrors = [:]
+        await model.retryPlaceSearch().value
+        #expect(resultsOrigin == .place("Kamppi"))
+    }
+
+    @Test func retryingReturnAsksForSuggestionsAgainAndShowsResults() async {
+        places.failingTexts = ["ka"]
+        model.searchText = "ka"
+        await waitUntil { model.suggestionStatus == .failed }
+        await model.chooseTopSuggestion().value
+        places.failingTexts = []
+        await model.retryPlaceSearch().value
+        #expect(resultsOrigin == .place("Kamppi"))
+        #expect(model.searchText == "Kamppi")
+    }
+
+    @Test func typingAfterNoMatchesGoesBackToIdle() async {
+        model.searchText = "zz"
+        await waitUntil { model.suggestionStatus == .noMatches }
+        await model.chooseTopSuggestion().value
+        model.searchText = "zzz"
+        #expect(model.state == .idle)
+    }
+
+    @Test func typingKeepsTheResults() async {
+        await model.choose(Self.kamppi).value
+        model.searchText = "ke"
+        #expect(resultsOrigin == .place("Kamppi"))
+    }
+
+    @Test func anOlderPlaceFailingLateDoesNotReplaceNewerResults() async {
+        places.placeErrors = [Self.kampinkuja: .failed]
+        location.queuedAnswers = [Self.fix(Self.here)]
+        let older = model.choose(Self.kampinkuja)
+        let newer = model.useMyLocation()
+        await older.value
+        await newer.value
+        #expect(resultsOrigin == .myLocation(isApproximate: false))
+    }
+
     @Test func useMyLocationEmptiesTheField() async {
         await model.choose(Self.kamppi).value
         location.queuedAnswers = [Self.fix(Self.here)]

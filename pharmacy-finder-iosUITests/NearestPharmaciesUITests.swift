@@ -143,6 +143,28 @@ final class NearestPharmaciesUITests: XCTestCase {
         try audit(app)
     }
 
+    func testReturnWithNoMatchesSaysNoPlaceWasFound() throws {
+        let app = launch(location: Self.helsinki)
+        let field = app.textFields["Address or place"]
+        field.tap()
+        field.typeText("zzz\n")
+
+        XCTAssertTrue(app.staticTexts["No place found in Finland."].waitForExistence(timeout: 5))
+        try audit(app)
+    }
+
+    func testAFailedPlaceSearchOffersRetry() throws {
+        let app = launch(location: Self.helsinki, places: "failing")
+        let field = app.textFields["Address or place"]
+        field.tap()
+        field.typeText("kamp\n")
+
+        XCTAssertTrue(
+            app.staticTexts["We couldn't search for the place."].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Try again"].exists)
+        try audit(app)
+    }
+
     // MARK: - Helpers
 
     private func launch(

@@ -6,19 +6,34 @@
     struct PreviewScreen: View {
         @State private var model: NearestPharmaciesModel
         private let searches: Bool
+        private let placeText: String?
 
-        init(answer: Result<LocationFix, LocationError>?, searches: Bool = true) {
+        /// With `placeText`, searches for that place as if typed and Return pressed, instead of
+        /// using the location.
+        init(
+            answer: Result<LocationFix, LocationError>?, searches: Bool = true,
+            placeText: String? = nil, placeSearchFails: Bool = false
+        ) {
             _model = State(
                 initialValue: NearestPharmaciesModel(
                     listLoader: PreviewPharmacyListLoader(),
                     locationProvider: PreviewLocationProvider(answer: answer),
-                    placeSearch: FixedPlaceSearch()))
+                    placeSearch: FixedPlaceSearch(fails: placeSearchFails)))
             self.searches = searches
+            self.placeText = placeText
         }
 
         var body: some View {
             NearestPharmaciesView(model: model)
-                .task { if searches { model.useMyLocation() } }
+                .task {
+                    guard searches else { return }
+                    if let placeText {
+                        model.searchText = placeText
+                        model.chooseTopSuggestion()
+                    } else {
+                        model.useMyLocation()
+                    }
+                }
         }
     }
 

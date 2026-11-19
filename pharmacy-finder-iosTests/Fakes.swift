@@ -69,6 +69,8 @@ final class FakePlaceSearch: PlaceSearch {
     var suggestionsByText: [String: [PlaceSuggestion]] = [:]
     var places: [PlaceSuggestion: Place] = [:]
     var failingTexts: Set<String> = []
+    /// Errors for chosen places, instead of `places`' answers.
+    var placeErrors: [PlaceSuggestion: PlaceSearchError] = [:]
     var waitsForRelease = false
     private(set) var suggestionRequests: [String] = []
     private var waiting: [CheckedContinuation<Void, Never>] = []
@@ -81,6 +83,7 @@ final class FakePlaceSearch: PlaceSearch {
     }
 
     func place(for suggestion: PlaceSuggestion) async throws(PlaceSearchError) -> Place {
+        if let error = placeErrors[suggestion] { throw error }
         guard let place = places[suggestion] else { throw .failed }
         return place
     }
