@@ -16,7 +16,7 @@ struct StatusTextTests {
                     coordinate: Coordinate(latitude: 60, longitude: 25)),
                 distanceMeters: 100)
         }
-        return .results(pharmacies, isApproximate: false)
+        return .results(pharmacies, from: .myLocation(isApproximate: false))
     }
 
     private static func text(_ state: NearestPharmaciesModel.State, _ language: String) -> String? {

@@ -26,9 +26,8 @@ struct NearestPharmaciesView: View {
                     locateButton
                 }
                 StatusSection(state: model.state, retry: retry)
-                if case .results(let pharmacies, let isApproximate) = model.state {
-                    ResultsSection(
-                        pharmacies: pharmacies, isApproximate: isApproximate, focus: $focus)
+                if case .results(let pharmacies, let origin) = model.state {
+                    ResultsSection(pharmacies: pharmacies, origin: origin, focus: $focus)
                 }
                 Divider()
                 FooterView(listGeneratedAt: model.listGeneratedAt)

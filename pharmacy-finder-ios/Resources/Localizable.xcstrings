@@ -272,7 +272,7 @@
       }
     },
     "results.heading" : {
-      "comment" : "Heading above the nearest pharmacies.",
+      "comment" : "Heading above the pharmacies nearest to the user.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -285,6 +285,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lähellä olevat apteekit"
+          }
+        }
+      }
+    },
+    "results.headingPlace %@" : {
+      "comment" : "Heading above the pharmacies nearest to a place the user chose. The placeholder is the place, such as \"Kamppi\" or \"Mannerheimintie 1\".",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pharmacies near %@"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lähimmät apteekit: %@"
           }
         }
       }

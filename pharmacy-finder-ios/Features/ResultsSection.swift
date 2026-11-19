@@ -4,14 +4,13 @@ import SwiftUI
 /// `ResultsList.tsx`.
 struct ResultsSection: View {
     let pharmacies: [NearbyPharmacy]
-    /// The user shared only an approximate location (ADR 0103), so the order may be wrong.
-    let isApproximate: Bool
+    let origin: NearestPharmaciesModel.Origin
     /// The screen moves VoiceOver focus to the heading when new results appear.
     var focus: AccessibilityFocusState<NearestPharmaciesView.Focus?>.Binding
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("results.heading", comment: "Heading above the nearest pharmacies.")
+            heading
                 .font(.title2.bold())
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused(focus, equals: .resultsHeading)
@@ -21,7 +20,8 @@ struct ResultsSection: View {
             Text(
                 "results.distanceNote",
                 comment: "Under the results heading: how distances are measured.")
-            if isApproximate { approximateNote }
+            // The user shared only an approximate location (ADR 0103), so the order may be wrong.
+            if origin == .myLocation(isApproximate: true) { approximateNote }
 
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(pharmacies) { nearby in
@@ -33,6 +33,19 @@ struct ResultsSection: View {
                 Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12))
         }
         .font(.subheadline)
+    }
+
+    private var heading: Text {
+        switch origin {
+        case .myLocation:
+            Text("results.heading", comment: "Heading above the pharmacies nearest to the user.")
+        case .place(let name):
+            Text(
+                "results.headingPlace \(name)",
+                comment:
+                    "Heading above the pharmacies nearest to a place the user chose. The placeholder is the place, such as \"Kamppi\" or \"Mannerheimintie 1\"."
+            )
+        }
     }
 
     private var approximateNote: some View {
