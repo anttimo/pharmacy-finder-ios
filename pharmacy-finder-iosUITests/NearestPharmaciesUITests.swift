@@ -117,16 +117,72 @@ final class NearestPharmaciesUITests: XCTestCase {
         XCTAssertNotEqual(field.value as? String, "Keskustori")
     }
 
+    func testTextWithNoMatchesSaysSoUnderTheField() throws {
+        let app = launch(location: Self.helsinki)
+        let field = app.textFields["Address or place"]
+        field.tap()
+        field.typeText("zzz")
+
+        let message = app.staticTexts.matching(
+            NSPredicate(format: "label BEGINSWITH 'No places found in Finland.'")
+        ).firstMatch
+        XCTAssertTrue(message.waitForExistence(timeout: 5))
+        try audit(app)
+    }
+
+    func testAFailedPlaceSearchSaysSoUnderTheField() throws {
+        let app = launch(location: Self.helsinki, places: "failing")
+        let field = app.textFields["Address or place"]
+        field.tap()
+        field.typeText("kamp")
+
+        let message = app.staticTexts.matching(
+            NSPredicate(format: "label BEGINSWITH 'Address search isn'")
+        ).firstMatch
+        XCTAssertTrue(message.waitForExistence(timeout: 5))
+        try audit(app)
+    }
+
+    func testReturnWithNoMatchesSaysNoPlaceWasFound() throws {
+        let app = launch(location: Self.helsinki)
+        let field = app.textFields["Address or place"]
+        field.tap()
+        field.typeText("zzz\n")
+
+        XCTAssertTrue(app.staticTexts["No place found in Finland."].waitForExistence(timeout: 5))
+        try audit(app)
+    }
+
+    func testAFailedPlaceSearchOffersRetry() throws {
+        let app = launch(location: Self.helsinki, places: "failing")
+        let field = app.textFields["Address or place"]
+        field.tap()
+        field.typeText("kamp\n")
+
+        XCTAssertTrue(
+            app.staticTexts["We couldn't search for the place."].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Try again"].exists)
+        try audit(app)
+
+        // Retries the place, not the location: that would empty the field and show results for
+        // the fixed location. This search always fails, so the error comes back.
+        app.buttons["Try again"].tap()
+        XCTAssertFalse(
+            app.staticTexts["Showing the 3 nearest pharmacies."].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["We couldn't search for the place."].exists)
+        XCTAssertEqual(field.value as? String, "kamp")
+    }
+
     // MARK: - Helpers
 
-    private func launch(location: String, language: String = "en", region: String = "en_FI")
-        -> XCUIApplication
-    {
+    private func launch(
+        location: String, places: String = "YES", language: String = "en", region: String = "en_FI"
+    ) -> XCUIApplication {
         continueAfterFailure = false
         let app = XCUIApplication()
         app.launchArguments = [
             "-fixedLocation", location,
-            "-fixedPlaces", "YES",
+            "-fixedPlaces", places,
             "-AppleLanguages", "(\(language))",
             "-AppleLocale", region,
         ]

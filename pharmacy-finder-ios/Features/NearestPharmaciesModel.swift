@@ -5,7 +5,7 @@ import Observation
 /// the device. The iOS counterpart of the web app's `useNearestPharmacies` and
 /// `usePlaceSuggestions` hooks.
 ///
-/// Each `useMyLocation()` or `choose(_:)` starts a new search (also used to retry) and cancels the
+/// Each `useMyLocation()`, `choose(_:)` or `retryPlaceSearch()` starts a new search and cancels the
 /// one still running, so only the latest result is shown.
 @Observable
 final class NearestPharmaciesModel {
@@ -18,6 +18,19 @@ final class NearestPharmaciesModel {
         case results([NearbyPharmacy], from: Origin)
         case denied
         case locationError
+        /// The chosen or typed place wasn't found in Finland.
+        case noMatches
+        /// Apple's place search couldn't be reached.
+        case searchError
+    }
+
+    /// What the field says about its suggestions. Separate from `state`: it never touches the
+    /// results, which change only when a place is chosen (as on the web).
+    enum SuggestionStatus: Hashable {
+        case none
+        /// Apple found nothing for the text, or only places outside Finland.
+        case noMatches
+        case failed
     }
 
     /// Where a search started from, for the results' heading and notes.
@@ -46,6 +59,8 @@ final class NearestPharmaciesModel {
     /// Places matching `searchText`. The previous ones stay while new ones load, so the list
     /// doesn't flicker as the user types.
     private(set) var suggestions: [PlaceSuggestion] = []
+    /// Reset as soon as the text changes, so a message never describes older text.
+    private(set) var suggestionStatus = SuggestionStatus.none
 
     private let listLoader: any PharmacyListLoader
     private let locationProvider: any LocationProvider
@@ -60,6 +75,13 @@ final class NearestPharmaciesModel {
     @ObservationIgnored private var suggestedQuery = ""
     /// The name of the place last chosen. While the field shows it, there's nothing to suggest.
     @ObservationIgnored private var chosenPlaceName: String?
+    /// What `retryPlaceSearch()` repeats: a chosen suggestion, or the text Return was pressed on.
+    @ObservationIgnored private var placeToRetry: PlaceToRetry?
+
+    private enum PlaceToRetry {
+        case suggestion(PlaceSuggestion)
+        case text(String)
+    }
     /// Precise location is asked for at most once per launch (ADR 0103). The model lives as long
     /// as the app, so this flag does too.
     @ObservationIgnored private var hasAskedForPreciseLocation = false
@@ -94,11 +116,13 @@ final class NearestPharmaciesModel {
         // Before the text, so changing the text doesn't ask for suggestions for the name.
         chosenPlaceName = suggestion.title
         searchText = suggestion.title
+        placeToRetry = .suggestion(suggestion)
         return startSearch(.loading) { await $0.showNearest(to: suggestion) }
     }
 
     /// Return in the field: chooses the top suggestion, waiting for the suggestions if they're
-    /// still on their way, as on the web.
+    /// still on their way, as on the web. With none, asks Apple again for the text, so Return
+    /// after "no places found" or an error says so in the status (or finds a place this time).
     @discardableResult
     func chooseTopSuggestion() -> Task<Void, Never> {
         let text = query
@@ -106,11 +130,30 @@ final class NearestPharmaciesModel {
         return Task {
             await pending?.value
             // The text changed meanwhile, or the user started another search.
-            guard query == text, text.count >= Self.minimumQueryLength,
-                let top = suggestions.first
-            else { return }
-            await choose(top).value
+            guard query == text, text.count >= Self.minimumQueryLength else { return }
+            if let top = suggestions.first {
+                await choose(top).value
+            } else {
+                await showNearestToTopSuggestion(for: text).value
+            }
         }
+    }
+
+    /// "Try again" after `.searchError`: repeats the last place search.
+    @discardableResult
+    func retryPlaceSearch() -> Task<Void, Never> {
+        switch placeToRetry {
+        case .suggestion(let suggestion): choose(suggestion)
+        case .text(let text): showNearestToTopSuggestion(for: text)
+        case nil: Task {}
+        }
+    }
+
+    private func showNearestToTopSuggestion(for text: String) -> Task<Void, Never> {
+        placeToRetry = .text(text)
+        // The status line says it now, so the field doesn't repeat it.
+        suggestionStatus = .none
+        return startSearch(.loading) { await $0.findTopSuggestionAndShowNearest(for: text) }
     }
 
     /// Cancels the running search and starts `operation` as the new one.
@@ -136,15 +179,26 @@ final class NearestPharmaciesModel {
         guard text != suggestedQuery else { return }
         suggestedQuery = text
         suggestionSearch?.cancel()
+        suggestionStatus = .none
+        // New text, so "not found" or the error no longer describes it. Results stay.
+        if state == .noMatches || state == .searchError { state = .idle }
         guard text.count >= Self.minimumQueryLength else {
             suggestionSearch = nil
             suggestions = []
             return
         }
         suggestionSearch = Task {
-            let found = (try? await placeSearch.suggestions(for: text)) ?? []
-            guard !Task.isCancelled else { return }
-            suggestions = found
+            do throws(PlaceSearchError) {
+                let found = try await placeSearch.suggestions(for: text)
+                guard !Task.isCancelled else { return }
+                suggestions = found
+                suggestionStatus = found.isEmpty ? .noMatches : .none
+            } catch {
+                guard !Task.isCancelled else { return }
+                // The old suggestions are for other text, and the message replaces them.
+                suggestions = []
+                suggestionStatus = .failed
+            }
         }
     }
 
@@ -176,7 +230,7 @@ final class NearestPharmaciesModel {
             place = try await placeSearch.place(for: suggestion)
         } catch {
             guard !Task.isCancelled else { return }
-            state = .idle
+            state = error == .notFound ? .noMatches : .searchError
             return
         }
         guard !Task.isCancelled else { return }
@@ -185,6 +239,37 @@ final class NearestPharmaciesModel {
         state = .results(
             pharmacies.nearest(to: place.coordinate, count: Self.resultCount),
             from: .place(place.name))
+    }
+
+    private func findTopSuggestionAndShowNearest(for text: String) async {
+        let answer: Result<[PlaceSuggestion], PlaceSearchError>
+        do throws(PlaceSearchError) {
+            answer = .success(try await placeSearch.suggestions(for: text))
+        } catch {
+            answer = .failure(error)
+        }
+        guard !Task.isCancelled else { return }
+        // Typing meanwhile doesn't cancel this search, but the answer is about text no longer
+        // in the field: the live search even answers it with nothing once the newer text asks
+        // (see `PlaceSearch`). Saying "not found", or putting a place's name over what the user
+        // typed, would be wrong.
+        guard query == text else {
+            state = .idle
+            return
+        }
+        guard case .success(let found) = answer else {
+            state = .searchError
+            return
+        }
+        guard let top = found.first else {
+            state = .noMatches
+            return
+        }
+        // As `choose(_:)` does, but within this search, which a newer one can still cancel.
+        chosenPlaceName = top.title
+        searchText = top.title
+        placeToRetry = .suggestion(top)
+        await showNearest(to: top)
     }
 
     /// For an approximate fix, asks once per launch for a precise location and takes a new fix.

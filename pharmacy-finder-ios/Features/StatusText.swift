@@ -30,6 +30,14 @@ extension NearestPharmaciesModel.State {
             LocalizedStringResource(
                 "status.locationError",
                 comment: "Status when the device's location couldn't be found.")
+        case .noMatches:
+            LocalizedStringResource(
+                "status.noMatches",
+                comment: "Status when the typed or chosen place wasn't found in Finland.")
+        case .searchError:
+            LocalizedStringResource(
+                "status.searchError",
+                comment: "Status when Apple's place search couldn't be reached.")
         }
     }
 
@@ -37,7 +45,26 @@ extension NearestPharmaciesModel.State {
     var isBusy: Bool {
         switch self {
         case .locating, .loading: true
-        case .idle, .results, .denied, .locationError: false
+        case .idle, .results, .denied, .locationError, .noMatches, .searchError: false
+        }
+    }
+}
+
+extension NearestPharmaciesModel.SuggestionStatus {
+    /// The message under the search field, which VoiceOver also announces. The web app's
+    /// `fieldMessage` for the same states (`PlaceSearch.tsx`), with "in Finland" added.
+    var message: LocalizedStringResource? {
+        switch self {
+        case .none:
+            nil
+        case .noMatches:
+            LocalizedStringResource(
+                "search.noMatches",
+                comment: "Under the search field when no place in Finland matches the text.")
+        case .failed:
+            LocalizedStringResource(
+                "search.error",
+                comment: "Under the search field when Apple's place search couldn't be reached.")
         }
     }
 }

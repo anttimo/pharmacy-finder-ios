@@ -25,7 +25,7 @@ struct PharmacyFinderApp: App {
     private static func placeSearch() -> any PlaceSearch {
         #if DEBUG
             // UI tests use a few fixed places instead of Apple's service.
-            if FixedPlaceSearch.isRequested { return FixedPlaceSearch() }
+            if let fixed = FixedPlaceSearch.fromLaunchArguments() { return fixed }
         #endif
         return LivePlaceSearch()
     }

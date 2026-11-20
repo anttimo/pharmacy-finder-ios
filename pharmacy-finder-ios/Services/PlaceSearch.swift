@@ -12,7 +12,8 @@ protocol PlaceSearch {
     /// returns nothing: only the latest text's suggestions matter.
     func suggestions(for text: String) async throws(PlaceSearchError) -> [PlaceSuggestion]
 
-    /// The place a suggestion stands for, with its coordinates.
+    /// The place a suggestion stands for, with its coordinates. Throws `.notFound` for a place
+    /// outside Finland.
     func place(for suggestion: PlaceSuggestion) async throws(PlaceSearchError) -> Place
 }
 
@@ -34,19 +35,29 @@ nonisolated struct Place: Hashable, Sendable {
 }
 
 nonisolated enum PlaceSearchError: Error, Hashable, Sendable {
-    /// No network, Apple's service failed, or the chosen place couldn't be found any more.
+    /// No network, Apple's service failed, or the chosen suggestion is no longer known.
     case failed
+    /// Apple found no such place, or it's outside Finland.
+    case notFound
 }
 
 /// `PlaceSearch` on MapKit: `MKLocalSearchCompleter` for the suggestions, and `MKLocalSearch` for
-/// the chosen one's coordinates. (`CLGeocoder` is deprecated since iOS 26.)
+/// the chosen one's coordinates. (`CLGeocoder` is deprecated since iOS 26.) Places outside Finland
+/// are dropped here (see `Finland`).
 final class LivePlaceSearch: NSObject, PlaceSearch {
     /// A box around Finland, from Hanko to Nuorgam and from Åland to Ilomantsi.
     static let finland = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 64.9, longitude: 25.3),
         span: MKCoordinateSpan(latitudeDelta: 10.6, longitudeDelta: 12.6))
 
-    private let completer = MKLocalSearchCompleter()
+    /// In the app's language and both of its localizations: Apple names the country in the
+    /// device's language, which may be neither.
+    private static let otherCountryNames = Finland.otherCountryNames(in: [
+        .current, Locale(identifier: "en"), Locale(identifier: "fi"),
+    ])
+
+    /// Replaced after a failure: see `suggestions(for:)`.
+    private var completer = MKLocalSearchCompleter()
     /// The latest completions by suggestion id, because `MKLocalSearch` needs the completion
     /// object itself, which isn't `Sendable` and so can't travel inside a `PlaceSuggestion`.
     private var completions: [PlaceSuggestion.ID: MKLocalSearchCompletion] = [:]
@@ -54,6 +65,10 @@ final class LivePlaceSearch: NSObject, PlaceSearch {
 
     override init() {
         super.init()
+        configure(completer)
+    }
+
+    private func configure(_ completer: MKLocalSearchCompleter) {
         completer.delegate = self
         completer.region = Self.finland
         // Addresses and places, not "search for…" queries, which have no single location.
@@ -63,7 +78,8 @@ final class LivePlaceSearch: NSObject, PlaceSearch {
     func suggestions(for text: String) async throws(PlaceSearchError) -> [PlaceSuggestion] {
         finish(.success([]))
         // The completer only answers when the text changes, so asking again for the same text
-        // (after "Kam" → "Ka" → "Kam") would wait forever.
+        // (after "Kam" → "K" → "Kam") would wait forever. After a failure there are no results to
+        // reuse, so a new completer asks Apple again.
         if completer.queryFragment == text, !completer.isSearching {
             return suggestions(from: completer.results)
         }
@@ -77,8 +93,28 @@ final class LivePlaceSearch: NSObject, PlaceSearch {
     func place(for suggestion: PlaceSuggestion) async throws(PlaceSearchError) -> Place {
         guard let completion = completions[suggestion.id] else { throw .failed }
         let search = MKLocalSearch(request: MKLocalSearch.Request(completion: completion))
-        guard let item = try? await search.start().mapItems.first else { throw .failed }
+        let items: [MKMapItem]
+        do {
+            items = try await search.start().mapItems
+        } catch {
+            throw Self.isNotFound(error) ? .notFound : .failed
+        }
+        guard
+            let item = items.first(where: { Finland.includes(regionCode: Self.regionCode(of: $0)) })
+        else { throw .notFound }
         return Place(name: suggestion.title, coordinate: Self.coordinate(of: item))
+    }
+
+    private static func isNotFound(_ error: any Error) -> Bool {
+        (error as? MKError)?.code == .placemarkNotFound
+    }
+
+    private static func regionCode(of item: MKMapItem) -> String? {
+        if #available(iOS 26, *) {
+            item.addressRepresentations?.region?.identifier
+        } else {
+            item.placemark.isoCountryCode
+        }
     }
 
     private static func coordinate(of item: MKMapItem) -> Coordinate {
@@ -96,7 +132,10 @@ final class LivePlaceSearch: NSObject, PlaceSearch {
         var suggestions: [PlaceSuggestion] = []
         for completion in results {
             let suggestion = PlaceSuggestion(title: completion.title, subtitle: completion.subtitle)
-            guard completions[suggestion.id] == nil else { continue }
+            guard completions[suggestion.id] == nil,
+                !Finland.namesAnotherCountry(
+                    suggestion.subtitle, otherCountryNames: Self.otherCountryNames)
+            else { continue }
             completions[suggestion.id] = completion
             suggestions.append(suggestion)
         }
@@ -117,6 +156,15 @@ extension LivePlaceSearch: @MainActor MKLocalSearchCompleterDelegate {
     }
 
     func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: any Error) {
-        finish(.failure(.failed))
+        // In a live test, text that matches nothing gave an empty list, but Apple's error for it
+        // means the same.
+        if Self.isNotFound(error) {
+            finish(.success([]))
+        } else {
+            completer.delegate = nil
+            self.completer = MKLocalSearchCompleter()
+            configure(self.completer)
+            finish(.failure(.failed))
+        }
     }
 }

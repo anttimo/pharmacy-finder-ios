@@ -7,6 +7,9 @@ struct PlaceSearchField: View {
     @Bindable var model: NearestPharmaciesModel
     /// The screen owns it, so "Use my location" can close the keyboard.
     var isFocused: FocusState<Bool>.Binding
+    /// The screen moves VoiceOver focus to the field after "Try again" on a failed place search.
+    /// It's on the field itself: VoiceOver can only land on an element, not on this whole block.
+    var accessibilityFocus: AccessibilityFocusState<NearestPharmaciesView.Focus?>.Binding
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -23,6 +26,7 @@ struct PlaceSearchField: View {
                 Text("search.label", comment: label)
             }
             .focused(isFocused)
+            .accessibilityFocused(accessibilityFocus, equals: .searchField)
             .submitLabel(.search)
             .autocorrectionDisabled()
             .onSubmit { model.chooseTopSuggestion() }
@@ -38,6 +42,19 @@ struct PlaceSearchField: View {
 
             // Only while the field has focus, so a late answer can't open the list elsewhere.
             if isFocused.wrappedValue, !model.suggestions.isEmpty { suggestionList }
+            // Also without focus: it's about the text, which stays in the field.
+            if let message = model.suggestionStatus.message {
+                if model.suggestionStatus == .failed {
+                    // The icon, so the error doesn't read as just another note.
+                    Label {
+                        Text(message)
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle").accessibilityHidden(true)
+                    }
+                } else {
+                    Text(message)
+                }
+            }
 
             Text("search.privacy", comment: privacyComment)
                 .font(.footnote)

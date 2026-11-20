@@ -74,7 +74,7 @@
       }
     },
     "error.retry" : {
-      "comment" : "Button that tries to get the location again.",
+      "comment" : "Button that tries again to get the location, or to search for the place.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -87,6 +87,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Yritä uudelleen"
+          }
+        }
+      }
+    },
+    "error.searchBody" : {
+      "comment" : "Under \"We couldn't search for the place.\": what to check.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check your internet connection, then try again."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tarkista internetyhteys ja yritä uudelleen."
           }
         }
       }
@@ -177,6 +195,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Käytä sijaintiani"
+          }
+        }
+      }
+    },
+    "noMatches.body" : {
+      "comment" : "Under \"No place found in Finland.\": what to try instead.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check the spelling, or try a street or town nearby."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tarkista kirjoitusasu tai kokeile lähellä olevaa katua tai kuntaa."
           }
         }
       }
@@ -343,6 +379,24 @@
         }
       }
     },
+    "search.error" : {
+      "comment" : "Under the search field when Apple's place search couldn't be reached.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Address search isn't working right now. Try again, or use your location."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Osoitehaku ei toimi juuri nyt. Yritä uudelleen tai käytä sijaintiasi."
+          }
+        }
+      }
+    },
     "search.label" : {
       "comment" : "Label of the address or place search field.",
       "extractionState" : "manual",
@@ -357,6 +411,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Osoite tai paikka"
+          }
+        }
+      }
+    },
+    "search.noMatches" : {
+      "comment" : "Under the search field when no place in Finland matches the text.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No places found in Finland. Check the spelling, or try a street or town nearby."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paikkoja ei löytynyt Suomesta. Tarkista kirjoitusasu tai kokeile lähellä olevaa katua tai kuntaa."
           }
         }
       }
@@ -543,6 +615,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sijaintiasi ei saatu haettua."
+          }
+        }
+      }
+    },
+    "status.noMatches" : {
+      "comment" : "Status when the typed or chosen place wasn't found in Finland.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No place found in Finland."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paikkaa ei löytynyt Suomesta."
+          }
+        }
+      }
+    },
+    "status.searchError" : {
+      "comment" : "Status when Apple's place search couldn't be reached.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We couldn't search for the place."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paikkaa ei saatu haettua."
           }
         }
       }

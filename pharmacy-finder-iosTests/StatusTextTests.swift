@@ -34,6 +34,8 @@ struct StatusTextTests {
         #expect(Self.text(.loading, "fi") == "Haetaan lähellä olevia apteekkeja…")
         #expect(Self.text(.denied, "en") == "Location access is turned off.")
         #expect(Self.text(.locationError, "fi") == "Sijaintiasi ei saatu haettua.")
+        #expect(Self.text(.noMatches, "en") == "No place found in Finland.")
+        #expect(Self.text(.searchError, "fi") == "Paikkaa ei saatu haettua.")
     }
 
     @Test func resultsCountUsesPluralForms() {
@@ -48,5 +50,7 @@ struct StatusTextTests {
         #expect(NearestPharmaciesModel.State.loading.isBusy)
         #expect(!Self.results(3).isBusy)
         #expect(!NearestPharmaciesModel.State.denied.isBusy)
+        #expect(!NearestPharmaciesModel.State.noMatches.isBusy)
+        #expect(!NearestPharmaciesModel.State.searchError.isBusy)
     }
 }

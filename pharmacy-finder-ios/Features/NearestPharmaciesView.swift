@@ -8,6 +8,7 @@ struct NearestPharmaciesView: View {
     /// Where VoiceOver focus is moved to, as on the web.
     enum Focus: Hashable {
         case locateButton
+        case searchField
         case resultsHeading
     }
 
@@ -26,7 +27,8 @@ struct NearestPharmaciesView: View {
                     Text("app.intro", comment: "Intro under the title.")
                     locateButton
                     OrDivider()
-                    PlaceSearchField(model: model, isFocused: $searchFieldIsFocused)
+                    PlaceSearchField(
+                        model: model, isFocused: $searchFieldIsFocused, accessibilityFocus: $focus)
                 }
                 StatusSection(state: model.state, retry: retry)
                 if case .results(let pharmacies, let origin) = model.state {
@@ -55,6 +57,15 @@ struct NearestPharmaciesView: View {
                 announce(text)
             }
         }
+        // Only once the message has stayed for a moment: each letter typed clears it and the
+        // answer sets it again, and announcing every time talked over VoiceOver reading back the
+        // letters. A change of message cancels the wait.
+        .task(id: model.suggestionStatus) {
+            guard let message = model.suggestionStatus.message else { return }
+            try? await Task.sleep(for: .seconds(1))
+            guard !Task.isCancelled else { return }
+            announce(message)
+        }
     }
 
     /// VoiceOver moves to the new results' heading, then announces the status. The heading is
@@ -79,8 +90,13 @@ struct NearestPharmaciesView: View {
     /// "Try again" disappears once the search restarts, so VoiceOver focus moves to where the
     /// search started, as on the web.
     private func retry() {
-        model.useMyLocation()
-        focus = .locateButton
+        if model.state == .searchError {
+            model.retryPlaceSearch()
+            focus = .searchField
+        } else {
+            model.useMyLocation()
+            focus = .locateButton
+        }
     }
 
     // Stays tappable during a search: tapping again starts over, as on the web.
@@ -127,16 +143,34 @@ private struct StatusSection: View {
                     Text(
                         "error.locationBody",
                         comment: "Under \"We couldn't get your location.\": what to check.")
-                    Button(action: retry) {
-                        Text("error.retry", comment: "Button that tries to get the location again.")
-                            .frame(minHeight: 44)
-                    }
-                    .buttonStyle(.bordered)
+                    retryButton
+                case .noMatches:
+                    Text(
+                        "noMatches.body",
+                        comment: "Under \"No place found in Finland.\": what to try instead.")
+                case .searchError:
+                    Text(
+                        "error.searchBody",
+                        comment: "Under \"We couldn't search for the place.\": what to check.")
+                    retryButton
                 case .idle, .locating, .loading, .results:
                     EmptyView()
                 }
             }
         }
+    }
+}
+
+extension StatusSection {
+    fileprivate var retryButton: some View {
+        Button(action: retry) {
+            Text(
+                "error.retry",
+                comment: "Button that tries again to get the location, or to search for the place."
+            )
+            .frame(minHeight: 44)
+        }
+        .buttonStyle(.bordered)
     }
 }
 
@@ -195,4 +229,24 @@ struct OpenSettingsButton: View {
 
 #Preview("Location error") {
     PreviewScreen(answer: .failure(.unavailable))
+}
+
+#Preview("No matches") {
+    PreviewScreen(answer: nil, placeText: "zzz")
+}
+
+#Preview("Search error") {
+    PreviewScreen(answer: nil, placeText: "Kamppi", placeSearchFails: true)
+}
+
+#Preview("Search error, largest text, dark") {
+    PreviewScreen(answer: nil, placeText: "Kamppi", placeSearchFails: true)
+        .dynamicTypeSize(.accessibility5)
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Field message: search error, largest text, dark") {
+    PreviewScreen(answer: nil, placeText: "Kamppi", pressesReturn: false, placeSearchFails: true)
+        .dynamicTypeSize(.accessibility5)
+        .preferredColorScheme(.dark)
 }
