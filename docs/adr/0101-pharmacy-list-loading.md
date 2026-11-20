@@ -3,6 +3,7 @@
 - Status: Accepted
 - Date: 2026-11-18 (rewritten in place; replaces the same-day "live file first" proposal)
 - Applies to: iOS app
+- Updated: 2026-11-20. "Later: live loading" became "Next step: live loading", with the daily rebuild from web ADR-0001 as its first step.
 
 ## Context
 
@@ -33,19 +34,18 @@ Loading a bundled file can't fail in practice, so the list has no error state an
 
 **Bad, and how we handle it**
 
-- **Stale until the next release, and longer for users who don't update.** The footer date makes the age visible, and the UI already tells people to check with the pharmacy before going. If this becomes a real problem, do "Later" below.
+- **Stale until the next release, and longer for users who don't update.** This is the design's main weakness, and it's only acceptable because the app is a demo that isn't on the App Store. The footer date makes the age visible, and the UI already tells people to check with the pharmacy before going. A shipped app would need "Next step" below.
 
-## Later: live loading
+## Next step: live loading
 
-If freshness matters more later, without changing the web app's code:
+The demo stops here. If the app shipped, this would be the first thing to build:
 
-1. **Web repo:** a small Vite plugin in `vite.config.ts` emits a copy of `src/data/pharmacies.json` as `data/pharmacies.json` in the build. Cloudflare serves it as a static asset (no Worker code runs; `run_worker_first` covers only `/api/*`). The web app keeps its `import()`. That URL and the JSON shape then become a contract between the two apps.
-2. **iOS:** a second `PharmacyListLoader` that downloads `https://pharmacy-finder.pharmacyfinder.workers.dev/data/pharmacies.json` with a short timeout, rejects a file that doesn't decode or lists less than half the bundled count, caches a valid one, and otherwise falls back to the newer of the cache and the bundled copy.
-3. **Optional:** a scheduled job that rebuilds and deploys the list, as described in web ADR-0001 ("Later: refresh on the server"). With 1 and 2 in place, iOS users would get it without a release.
-
+1. **Web repo, daily rebuild:** a scheduled GitHub Action rebuilds the list every day and Cloudflare deploys it (web ADR-0001, "Next step: a daily rebuild"). Without it, a downloaded list would be no fresher than the last rebuild by hand.
+2. **Web repo, fixed URL:** a small Vite plugin in `vite.config.ts` emits a copy of `src/data/pharmacies.json` as `data/pharmacies.json` in the build. Cloudflare serves it as a static asset (no Worker code runs; `run_worker_first` covers only `/api/*`). The web app keeps its `import()`. That URL and the JSON shape then become a contract between the two apps.
+3. **iOS:** a second `PharmacyListLoader` that downloads `https://pharmacy-finder.pharmacyfinder.workers.dev/data/pharmacies.json` with a short timeout, rejects a file that doesn't decode or lists less than half the bundled count, caches a valid one, and otherwise falls back to the newer of the cache and the bundled copy.
 That change gets its own ADR, superseding this one.
 
 ## Alternatives considered
 
-- Live file first, bundled as fallback (this ADR's first version): needs a stable URL on the web app first. Deferred to "Later".
+- Live file first, bundled as fallback (this ADR's first version): needs a stable URL on the web app first. Deferred to "Next step".
 - Fetch the Fimea register directly from the app: the register has no coordinates, and geocoding on the device would need the Digitransit key in the app ([ADR-0001](0001-pharmacy-data-source.md)).
