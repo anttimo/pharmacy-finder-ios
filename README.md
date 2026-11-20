@@ -13,6 +13,10 @@ The pharmacy list is the web app's, built from Fimea's pharmacy register and geo
 
 **Next step:** the bundled list is only as fresh as the app's last release. The next thing to build would be live loading: the web app rebuilds the list every day, and the app downloads it, caches it and falls back to its bundled copy ([ADR 0101](docs/adr/0101-pharmacy-list-loading.md), "Next step: live loading").
 
+## Accessibility
+
+The app has been tested with VoiceOver. Each result reads as one element, with its Maps and phone actions as separate buttons, and status changes such as "locating" or new results are announced. Text scales up to the largest Dynamic Type sizes, and the UI tests run Xcode's accessibility audit.
+
 ## Stack
 
 SwiftUI with Observation, Swift 6 language mode, iOS 17 or newer. Apple frameworks only, no Swift packages ([ADR 0100](docs/adr/0100-minimal-dependencies.md)). Unit tests use Swift Testing, UI smoke tests use XCUITest with Xcode's accessibility audit, and the code is formatted with `swift-format`, which ships with Xcode.
