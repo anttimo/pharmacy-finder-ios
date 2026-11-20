@@ -40,6 +40,9 @@ struct NearestPharmaciesView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
         }
+        // Dragging the page closes the keyboard. Otherwise only Return (which searches) or a
+        // choice would close it.
+        .scrollDismissesKeyboard(.interactively)
         // With no navigation bar, nothing covers the status bar, so scrolled content showed
         // through behind the clock. The bar material does what a navigation bar's would, and turns
         // solid with Reduce Transparency.
