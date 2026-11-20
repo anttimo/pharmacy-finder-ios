@@ -2,6 +2,11 @@
 
 Finds the pharmacies nearest to you, or to a place you search for, in Finland. The app is in Finnish and English and follows the device language. It's the iOS version of the [web app](https://github.com/anttimo/pharmacy-finder-web).
 
+<p>
+  <img src="docs/screenshots/search.png" width="250" alt="The app's screen: the title, the Use my location button, the address or place field, and the first pharmacy near you.">
+  <img src="docs/screenshots/results.png" width="250" alt="Three pharmacies near Helsinki railway station, each with its distance, address, a Show in Maps button and its phone number, followed by the data sources.">
+</p>
+
 The pharmacy list is the web app's, built from Fimea's pharmacy register and geocoded with Digitransit ([ADR 0001](docs/adr/0001-pharmacy-data-source.md)). The app ships a copy of it ([ADR 0101](docs/adr/0101-pharmacy-list-loading.md)), so the list may be incomplete or out of date: check opening hours with the pharmacy.
 
 **Status:** a complete demo. "Use my location" and place search both show the three nearest pharmacies. The nearest search runs on the device, so your location never leaves it. Place search uses Apple's MapKit ([ADR 0003](docs/adr/0003-geocoding.md)) and needs no API key. The app isn't on the App Store.
