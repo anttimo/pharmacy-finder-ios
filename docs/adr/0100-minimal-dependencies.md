@@ -17,7 +17,7 @@ Use only Apple's frameworks: SwiftUI, Observation, CoreLocation, MapKit and Foun
 | Usually                               | Here instead                                                                 | Why it's enough                                                                 |
 | ------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | Alamofire / networking layer          | None now; `URLSession` with `async`/`await` if live loading is added          | The pharmacy list ships with the app ([ADR-0101](0101-pharmacy-list-loading.md)) |
-| TCA / Redux-style store               | One `@Observable` model, owned by the view, with `Task` cancellation          | One screen, no shared state                                                     |
+| TCA / Redux-style store               | One `@Observable` model, owned by the app, with `Task` cancellation           | One screen, no shared state                                                     |
 | Navigation / coordinator library      | None                                                                         | Single screen                                                                   |
 | Geocoding SDK                         | `MKLocalSearchCompleter` + `MKLocalSearch` ([ADR-0003](0003-geocoding.md))   | Built in, free, no key                                                          |
 | SwiftGen / R.swift / i18n library     | A String Catalog (`Localizable.xcstrings`), fi and en                        | A few dozen strings. A unit test checks that every string has both languages    |

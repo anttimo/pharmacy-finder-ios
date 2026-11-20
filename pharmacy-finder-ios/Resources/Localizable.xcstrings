@@ -253,24 +253,6 @@
         }
       }
     },
-    "results.checkHours" : {
-      "comment" : "Under the results heading. Opening hours aren't in the data.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Check opening hours with the pharmacy."
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tarkista aukioloajat apteekista."
-          }
-        }
-      }
-    },
     "results.distance %@" : {
       "comment" : "A pharmacy's distance, such as \"1,2 km\", measured in a straight line.",
       "extractionState" : "manual",
@@ -285,24 +267,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ linnuntietä"
-          }
-        }
-      }
-    },
-    "results.distanceNote" : {
-      "comment" : "Under the results heading: how distances are measured.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Distances are measured in a straight line."
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Etäisyydet on mitattu linnuntietä."
           }
         }
       }
@@ -357,6 +321,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Näytä kartalla"
+          }
+        }
+      }
+    },
+    "results.notes" : {
+      "comment" : "Under the results heading, small: opening hours aren't in the data, and how distances are measured.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check opening hours with the pharmacy. Distances are measured in a straight line."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tarkista aukioloajat apteekista. Etäisyydet on mitattu linnuntietä."
           }
         }
       }

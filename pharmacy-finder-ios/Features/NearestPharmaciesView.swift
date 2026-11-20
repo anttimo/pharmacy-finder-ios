@@ -16,29 +16,9 @@ struct NearestPharmaciesView: View {
     @FocusState private var searchFieldIsFocused: Bool
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                VStack(alignment: .leading, spacing: 16) {
-                    // In the content, not a navigation title: large navigation titles don't
-                    // wrap, and this one is cut off even at the default text size.
-                    Text("app.title", comment: "The screen's title.")
-                        .font(.largeTitle.bold())
-                        .accessibilityAddTraits(.isHeader)
-                    Text("app.intro", comment: "Intro under the title.")
-                    locateButton
-                    OrDivider()
-                    PlaceSearchField(
-                        model: model, isFocused: $searchFieldIsFocused, accessibilityFocus: $focus)
-                }
-                StatusSection(state: model.state, retry: retry)
-                if case .results(let pharmacies, let origin) = model.state {
-                    ResultsSection(pharmacies: pharmacies, origin: origin, focus: $focus)
-                }
-                Divider()
-                FooterView(listGeneratedAt: model.listGeneratedAt)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding()
+        // The screen's height, so a short page can push the footer to the bottom.
+        GeometryReader { screen in
+            content(minHeight: screen.size.height)
         }
         // With no navigation bar, nothing covers the status bar, so scrolled content showed
         // through behind the clock. The bar material does what a navigation bar's would, and turns
@@ -66,6 +46,53 @@ struct NearestPharmaciesView: View {
             guard !Task.isCancelled else { return }
             announce(message)
         }
+    }
+
+    private func content(minHeight: CGFloat) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: 24) {
+                    VStack(alignment: .leading, spacing: 16) {
+                        // In the content, not a navigation title: large navigation titles don't
+                        // wrap, and this one is cut off even at the default text size.
+                        Text("app.title", comment: "The screen's title.")
+                            .font(.largeTitle.bold())
+                            .accessibilityAddTraits(.isHeader)
+                        Text("app.intro", comment: "Intro under the title.")
+                            // Sets the title and intro apart from the controls below.
+                            .padding(.bottom, 32)
+                        locateButton
+                        OrDivider()
+                        PlaceSearchField(
+                            model: model, isFocused: $searchFieldIsFocused,
+                            accessibilityFocus: $focus)
+                    }
+                    StatusSection(state: model.state, retry: retry)
+                    if case .results(let pharmacies, let origin) = model.state {
+                        ResultsSection(pharmacies: pharmacies, origin: origin, focus: $focus)
+                    }
+                }
+                // Its full height always: when the page is taller than the screen, the stack
+                // would otherwise squeeze (and cut off) the text to fit the minimum height.
+                .fixedSize(horizontal: false, vertical: true)
+                // Takes up what's left of a short page, so the footer sits at the bottom.
+                Spacer(minLength: 0)
+                VStack(alignment: .leading, spacing: 24) {
+                    Divider()
+                    FooterView(listGeneratedAt: model.listGeneratedAt)
+                }
+                .fixedSize(horizontal: false, vertical: true)
+            }
+            // Capped and centred, so lines stay readable on iPad and in landscape.
+            .frame(maxWidth: 700, alignment: .leading)
+            .padding()
+            // At least the screen's height, so the spacer has room to grow. A longer page
+            // scrolls as before.
+            .frame(maxWidth: .infinity, minHeight: minHeight)
+        }
+        // Dragging the page closes the keyboard. Otherwise only Return (which searches) or a
+        // choice would close it.
+        .scrollDismissesKeyboard(.interactively)
     }
 
     /// VoiceOver moves to the new results' heading, then announces the status. The heading is
@@ -119,13 +146,17 @@ struct NearestPharmaciesView: View {
     }
 }
 
-/// The status line and, for denied and error, what the user can do about it.
+/// The status line and, for denied and error, what the user can do about it. Not shown with
+/// results: the heading and the list say it on screen, and VoiceOver still announces the count,
+/// which a listener can't see.
 private struct StatusSection: View {
     let state: NearestPharmaciesModel.State
     let retry: () -> Void
 
     var body: some View {
-        if let text = state.statusText {
+        if case .results = state {
+            EmptyView()
+        } else if let text = state.statusText {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 8) {
                     if state.isBusy { ProgressView() }

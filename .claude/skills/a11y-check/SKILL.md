@@ -16,7 +16,7 @@ Go through the changed UI and report every item as **pass**, **fail (fixed)**, *
 ## VoiceOver
 
 - Every control has an accessible label from the String Catalog. Icon-only buttons always have one.
-- Status changes (locating, "showing the 3 nearest pharmacies", errors) are announced once with `AccessibilityNotification.Announcement`, not by several competing announcements.
+- Status changes (locating, the number of results found, errors) are announced once with `AccessibilityNotification.Announcement`, not by several competing announcements.
 - After a search completes, VoiceOver focus moves to the results heading (`@AccessibilityFocusState`).
 - Distances read naturally ("350 metres", not "350 m"): format with `Measurement` using `.wide` width for the accessibility label if the visible form is abbreviated.
 - Buttons that leave the app (phone, Maps, Settings) say so in a hint.

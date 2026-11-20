@@ -14,12 +14,14 @@ struct ResultsSection: View {
                 .font(.title2.bold())
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused(focus, equals: .resultsHeading)
+            // Always shown with results (CLAUDE.md), but quiet: it's a caveat, not the content.
             Text(
-                "results.checkHours",
-                comment: "Under the results heading. Opening hours aren't in the data.")
-            Text(
-                "results.distanceNote",
-                comment: "Under the results heading: how distances are measured.")
+                "results.notes",
+                comment:
+                    "Under the results heading, small: opening hours aren't in the data, and how distances are measured."
+            )
+            .font(.footnote)
+            .foregroundStyle(.secondary)
             // The user shared only an approximate location (ADR 0103), so the order may be wrong.
             if origin == .myLocation(isApproximate: true) { approximateNote }
 
