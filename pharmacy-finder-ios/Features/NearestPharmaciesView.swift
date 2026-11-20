@@ -37,8 +37,10 @@ struct NearestPharmaciesView: View {
                 Divider()
                 FooterView(listGeneratedAt: model.listGeneratedAt)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            // Capped and centred, so lines stay readable on iPad and in landscape.
+            .frame(maxWidth: 700, alignment: .leading)
             .padding()
+            .frame(maxWidth: .infinity)
         }
         // Dragging the page closes the keyboard. Otherwise only Return (which searches) or a
         // choice would close it.
