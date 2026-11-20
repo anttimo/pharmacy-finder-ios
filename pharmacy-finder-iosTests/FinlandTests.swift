@@ -23,7 +23,10 @@ struct FinlandTests {
     }
 
     /// The English ones as Apple gave them in a live test; the Finnish ones as they would read.
-    @Test(arguments: ["Sweden", "Haparanda, Sweden", "Russia", "Ruotsi", "Haaparanta, Ruotsi"])
+    @Test(arguments: [
+        "Sweden", "Haparanda, Sweden", "Russia", "Ruotsi", "Haaparanta, Ruotsi",
+        "Bristol, England", "Edinburgh, Skotlanti",
+    ])
     func hidesSuggestionsInAnotherCountry(subtitle: String) {
         #expect(Finland.namesAnotherCountry(subtitle, otherCountryNames: Self.names))
     }
