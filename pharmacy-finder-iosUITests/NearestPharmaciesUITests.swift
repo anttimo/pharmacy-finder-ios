@@ -13,15 +13,19 @@ final class NearestPharmaciesUITests: XCTestCase {
 
         app.buttons["Use my location"].tap()
 
-        XCTAssertTrue(
-            app.staticTexts["Showing the 3 nearest pharmacies."].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Pharmacies near you"].waitForExistence(timeout: 5))
         XCTAssertEqual(resultRows(in: app).count, 3)
+        // The count is for VoiceOver only: on screen, the heading and the list say it.
+        XCTAssertFalse(app.staticTexts["Showing the 3 nearest pharmacies."].exists)
         // Ordinary buttons, not only VoiceOver actions, so Voice Control and Full Keyboard Access
         // reach them too.
         XCTAssertEqual(app.buttons.matching(identifier: "Show in Maps").count, 3)
         XCTAssertTrue(
             app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Call '")).firstMatch.exists)
-        XCTAssertTrue(app.staticTexts["Check opening hours with the pharmacy."].exists)
+        XCTAssertTrue(
+            app.staticTexts.matching(
+                NSPredicate(format: "label BEGINSWITH 'Check opening hours with the pharmacy.'")
+            ).firstMatch.exists)
         XCTAssertTrue(footerText(in: app, startingWith: "Pharmacy data source:").exists)
         try audit(app)
     }
@@ -31,8 +35,7 @@ final class NearestPharmaciesUITests: XCTestCase {
 
         app.buttons["Use my location"].tap()
 
-        XCTAssertTrue(
-            app.staticTexts["Showing the 3 nearest pharmacies."].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Pharmacies near you"].waitForExistence(timeout: 5))
         XCTAssertTrue(
             app.staticTexts.matching(
                 NSPredicate(format: "label BEGINSWITH 'Your location is approximate'")
@@ -167,8 +170,7 @@ final class NearestPharmaciesUITests: XCTestCase {
         // Retries the place, not the location: that would empty the field and show results for
         // the fixed location. This search always fails, so the error comes back.
         app.buttons["Try again"].tap()
-        XCTAssertFalse(
-            app.staticTexts["Showing the 3 nearest pharmacies."].waitForExistence(timeout: 2))
+        XCTAssertFalse(app.staticTexts["Pharmacies near you"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.staticTexts["We couldn't search for the place."].exists)
         XCTAssertEqual(field.value as? String, "kamp")
     }
